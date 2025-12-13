@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "Screen-Break-ai",
+  "version": "1.0",
+  "description": "A smart Chrome extension that monitors work habits and uses Gemini AI to deliver personalized, health-focused break recommendations.",
+
+  "permissions": [
+    "storage",
+    "alarms"
+  ],
+
+  "background": {
+    "service_worker": "background/break-scheduler.js"
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content/activity-tracker.js"]
+    }
+  ]
+}
