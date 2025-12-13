@@ -14,7 +14,7 @@
     "service_worker": "src/background/break-scheduler.js"
   },
   "action": {
-    "default_popup": "popup.jsx"
+    "default_popup": "src/popup/dist/index.html"
   },
   "content_scripts": [
     {
