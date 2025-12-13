@@ -1,0 +1,111 @@
+:root {
+  font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #1a1d21; /* Darker background */
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  width: 350px; /* A bit wider for better spacing */
+  min-height: 400px;
+  background-color: #1a1d21;
+}
+
+#root {
+  width: 100%;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  align-items: center;
+  width: 100%;
+}
+
+h1 {
+  font-size: 1.5rem;
+  line-height: 1.1;
+  font-weight: 700;
+  color: #6c5ce7; /* A nice purple accent */
+  margin: 0;
+}
+
+.dashboard {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  width: 100%;
+}
+
+.stats-card {
+  background: #2c3035; /* Slightly lighter card background */
+  padding: 1rem;
+  border-radius: 12px;
+  text-align: center;
+  border: 1px solid transparent;
+  transition: border-color 0.25s, transform 0.2s;
+  cursor: default;
+}
+
+.stats-card:hover {
+  transform: translateY(-2px);
+  border-color: #6c5ce7;
+}
+
+.stats-card h3 {
+  margin: 0 0 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stats-card p {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+
+.break-btn {
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  padding: 0.8em 1.2em;
+  font-size: 1.1rem;
+  font-weight: 600;
+  font-family: inherit;
+  color: #fff;
+  background: linear-gradient(45deg, #6c5ce7, #a29bfe);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(108, 92, 231, 0.4);
+}
+
+.break-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(108, 92, 231, 0.6);
+}
+
+.break-btn:focus,
+.break-btn:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+  outline-color: #a29bfe;
+}
