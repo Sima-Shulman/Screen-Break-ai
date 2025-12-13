@@ -6,17 +6,20 @@
 
   "permissions": [
     "storage",
+    "notifications",
     "alarms"
   ],
 
   "background": {
-    "service_worker": "background/break-scheduler.js"
+    "service_worker": "src/background/break-scheduler.js"
   },
-
+  "action": {
+    "default_popup": "popup.jsx"
+  },
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["content/activity-tracker.js"]
+      "js": ["src/content/activity-tracker.js"]
     }
   ]
 }
