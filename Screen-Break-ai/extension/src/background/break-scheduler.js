@@ -1,45 +1,46 @@
-// // background/break-scheduler.js
+console.log("Background service worker running");
 
-// chrome.runtime.onInstalled.addListener(() => {
-//   chrome.storage.local.set({
-//     activityStats: {
-//       clicks: 0,
-//       scrolls: 0,
-//       keypresses: 0,
-//       mouseMoves: 0,
-//       sessionStart: Date.now()
-//     }
-//   });
+// הגדרות הפסקות
+const BREAKS = {
+    eye: { interval: 20 * 60 * 1000, last: 0 },      // 20 דקות
+    stretch: { interval: 60 * 60 * 1000, last: 0 }   // שעה
+};
 
-//   // בדיקה עתידית כל דקה (לשלב הבא)
-//   chrome.alarms.create("activityCheck", {
-//     periodInMinutes: 1
-//   });
-// });
 
-// chrome.alarms.onAlarm.addListener((alarm) => {
-//   if (alarm.name === "activityCheck") {
-//     // בשלב 1 – אין לוגיקה
-//     // שלב 2: כאן תיכנס בדיקת הפסקות
-//   }
-// });
-// אתחול נתונים בזיכרון
-chrome.runtime.onInstalled.addListener(() => {
-    chrome.storage.local.set({ total_activity: { clicks: 0, keystrokes: 0, startTime: Date.now() } });
+
+// כל דקה – בדיקה אם לשלוח הפסקה
+chrome.alarms.create("checkBreaks", { periodInMinutes: 1 });
+
+chrome.alarms.onAlarm.addListener(() => {
+    chrome.storage.local.get(["total_activity"], (result) => {
+        const now = Date.now();
+        const stats = result.total_activity || { startTime: now };
+
+        console.log("Checking for breaks at", new Date(now).toLocaleTimeString());
+
+
+        // Eye Break
+        if (now - (BREAKS.eye.last || stats.startTime) > BREAKS.eye.interval) {
+            sendNotification("Eye Break", "עצום עיניים 20 שניות והסתכל למרחק 20 רגל");
+            BREAKS.eye.last = now;
+            console.log("Eye break notification sent");
+        }
+
+        // Stretch Break
+        if (now - (BREAKS.stretch.last || stats.startTime) > BREAKS.stretch.interval) {
+            sendNotification("Stretch Break", "קום מהכיסא ועשה תרגילי מתיחה קלים");
+            BREAKS.stretch.last = now;
+            console.log("Stretch break notification sent");
+        }
+    });
 });
 
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    if (message.type === "UPDATE_STATS") {
-        chrome.storage.local.get(['total_activity'], (result) => {
-            let stats = result.total_activity || { clicks: 0, keystrokes: 0 };
-            
-            // עדכון הנתונים המצטברים
-            stats.clicks += message.data.clicks;
-            stats.keystrokes += message.data.keystrokes;
-            
-            chrome.storage.local.set({ total_activity: stats }, () => {
-                console.log("Stats updated in storage:", stats);
-            });
-        });
-    }
-});
+function sendNotification(title, message) {
+    chrome.notifications.create({
+        type: "basic",
+        iconUrl: "/icon.png",  // חייב להיות קובץ PNG תקין בתיקיית root
+        title: title,
+        message: message,
+        priority: 2
+    });
+}
