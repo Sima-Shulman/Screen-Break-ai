@@ -1,0 +1,25 @@
+<svg viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle -->
+  <circle cx="64" cy="64" r="60" fill="#4F46E5" opacity="0.1"/>
+  
+  <!-- Main Circle Background -->
+  <circle cx="64" cy="64" r="54" fill="#4F46E5"/>
+  
+  <!-- Monitor Screen -->
+  <rect x="32" y="38" width="64" height="42" rx="3" fill="#FFFFFF"/>
+  
+  <!-- Monitor Stand -->
+  <rect x="58" y="80" width="12" height="8" fill="#FFFFFF"/>
+  <rect x="48" y="88" width="32" height="3" rx="1.5" fill="#FFFFFF"/>
+  
+  <!-- Pause Symbol (Two Vertical Bars) -->
+  <rect x="52" y="50" width="8" height="20" rx="2" fill="#4F46E5"/>
+  <rect x="68" y="50" width="8" height="20" rx="2" fill="#4F46E5"/>
+  
+  <!-- Small Sparkle/AI Indicator (top right) -->
+  <circle cx="88" cy="42" r="8" fill="#10B981"/>
+  <path d="M 88 38 L 88 46 M 84 42 L 92 42" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
+  
+  <!-- Subtle shadow effect -->
+  <circle cx="64" cy="64" r="54" fill="none" stroke="#000000" stroke-width="2" opacity="0.1"/>
+</svg>
