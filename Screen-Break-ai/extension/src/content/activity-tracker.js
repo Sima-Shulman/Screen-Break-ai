@@ -1,35 +1,66 @@
-console.log("!!! CONTENT SCRIPT IS RUNNING !!!");
+
+console.log("CONTENT SCRIPT RUNNING");
+
 let metrics = {
     clicks: 0,
     keystrokes: 0,
     scrollDistance: 0
 };
 
-// האזנה לקליקים
-window.addEventListener('click', () => {
+let lastScrollY = window.scrollY;          // 🆕 נוסף – למדידת תזוזת גלילה
+let lastTickTime = Date.now();             // 🆕 נוסף – למדידת delta של זמן מסך
+
+
+window.addEventListener("click", () => {
     metrics.clicks++;
 });
 
-// האזנה להקלדה
-window.addEventListener('keydown', () => {
+window.addEventListener("keydown", () => {
     metrics.keystrokes++;
 });
 
-// האזנה לגלילה
-window.addEventListener('scroll', () => {
-    metrics.scrollDistance += Math.abs(window.scrollY);
-}, { passive: true });
+window.addEventListener(
+    "scroll",
+    () => {
+        const diff = Math.abs(window.scrollY - lastScrollY); // ✏️ שונה – חישוב תזוזה
+        metrics.scrollDistance += diff;                      // ✏️ שונה
+        lastScrollY = window.scrollY;                        // 🆕 נוסף
+    },
+    { passive: true }
+);
 
-// שליחת הנתונים ל-Background script כל 10 שניות
-setInterval(() => {
-    if (metrics.clicks > 0 || metrics.keystrokes > 0) {
+
+const activityInterval = setInterval(() => {   // 🆕 נוסף – שמירת reference
+    try {                                      // 🆕 נוסף – הגנה מקריסה
+
+        // 🆕 נוסף – בדיקה שהקונטקסט עדיין קיים
+        if (!chrome?.runtime?.id) {
+            console.warn("Extension context lost – stopping tracker");
+            clearInterval(activityInterval);   // 🆕 חובה
+            return;
+        }
+
+        const now = Date.now();
+        const screenTime = Math.floor((now - lastTickTime) / 1000); // ✏️ שונה
+
         chrome.runtime.sendMessage({
             type: "UPDATE_STATS",
-            data: { ...metrics }
+            data: {
+                clicks: metrics.clicks,
+                keystrokes: metrics.keystrokes,
+                scrollDistance: metrics.scrollDistance,
+                screenTime: screenTime
+            }
         });
-        // איפוס מונים מקומיים אחרי שליחה
-        metrics.clicks = 0;
-        metrics.keystrokes = 0;
-        metrics.scrollDistance = 0;
+
+       
+        metrics.clicks = 0;             // 🆕 חובה – מונע ספירה כפולה
+        metrics.keystrokes = 0;         // 🆕 חובה
+        metrics.scrollDistance = 0;     // 🆕 חובה
+        lastTickTime = now;             // 🆕 חובה
+
+    } catch (e) {                        // 🆕 נוסף
+        console.warn("Context invalidated, tracker stopped");
+        clearInterval(activityInterval); // 🆕 חובה
     }
 }, 10000);
