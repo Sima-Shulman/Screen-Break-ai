@@ -57,8 +57,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 const BREAKS = {
-    eye: { interval: 2 * 60 * 1000 },
-    stretch: { interval: 6 * 60 * 1000 }
+    eye: { interval: 20 * 60 * 1000 },
+    stretch: { interval: 60 * 60 * 1000 }
 };
 
 
