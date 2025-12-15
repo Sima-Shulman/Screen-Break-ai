@@ -13,11 +13,11 @@ let lastTickTime = Date.now();             // 🆕 נוסף – למדידת del
 
 window.addEventListener("click", () => {
     metrics.clicks++;
-});
+},true);
 
-window.addEventListener("keydown", () => {
+document.addEventListener("keydown", () => {
     metrics.keystrokes++;
-});
+},true);
 
 window.addEventListener(
     "scroll",
@@ -26,7 +26,8 @@ window.addEventListener(
         metrics.scrollDistance += diff;                      // ✏️ שונה
         lastScrollY = window.scrollY;                        // 🆕 נוסף
     },
-    { passive: true }
+    { passive: true },
+    true
 );
 
 

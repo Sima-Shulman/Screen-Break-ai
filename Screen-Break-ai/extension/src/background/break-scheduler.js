@@ -9,9 +9,9 @@ chrome.runtime.onInstalled.addListener(() => {
             scrollDistance: 0,
             screenTime: 0
         },
-        breaksLast: {                
-            eye: Date.now(),          
-            stretch: Date.now()      
+        breaksLast: {
+            eye: Date.now(),
+            stretch: Date.now()
         }
     });
 });
@@ -57,48 +57,112 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 const BREAKS = {
-    eye: { interval: 20 * 60 * 1000 },
-    stretch: { interval: 60 * 60 * 1000 }
+    eye: { interval: 2 * 60 * 1000 },
+    stretch: { interval: 6 * 60 * 1000 }
 };
 
 
 chrome.alarms.create("checkBreaks", { periodInMinutes: 1 });
 
+// chrome.alarms.onAlarm.addListener(() => {
+//     const now = Date.now();
+
+//     chrome.storage.local.get(["breaksLast"], (result) => {
+//         const breaksLast = result.breaksLast || {   // 🆕 נוסף
+//             eye: 0,
+//             stretch: 0
+//         };
+
+//         console.log("Checking for breaks at", new Date(now).toLocaleTimeString());
+
+//         if (now - breaksLast.eye >= BREAKS.eye.interval) {
+//             sendNotification(
+//                 "Eye Break",
+//                 "עצום עיניים 20 שניות והסתכל למרחק"
+//             );
+//             breaksLast.eye = now;                   // ✏️ שונה
+//         }
+
+//         if (now - breaksLast.stretch >= BREAKS.stretch.interval) {
+//             sendNotification(
+//                 "Stretch Break",
+//                 "קום מהכיסא ועשה מתיחות קלות"
+//             );
+//             breaksLast.stretch = now;               // ✏️ שונה
+//         }
+
+//         chrome.storage.local.set({ breaksLast });   // 🆕 נוסף – קריטי
+//     });
+// });
+
+
 chrome.alarms.onAlarm.addListener(() => {
     const now = Date.now();
 
-    chrome.storage.local.get(["breaksLast"], (result) => {
-        const breaksLast = result.breaksLast || {   // 🆕 נוסף
-            eye: 0,
-            stretch: 0
-        };
+    chrome.storage.local.get(
+        ["breaksLast", "total_activity"],
+        async (result) => {
+            const breaksLast = result.breaksLast;
+            const stats = result.total_activity;
 
-        console.log("Checking for breaks at", new Date(now).toLocaleTimeString());
+            if (!breaksLast || !stats) return;
 
-        if (now - breaksLast.eye >= BREAKS.eye.interval) {
+            let breakType = "";
+
+            if (now - breaksLast.eye >= BREAKS.eye.interval) {
+                breakType += "eye ";
+            }
+            if (now - breaksLast.stretch >= BREAKS.stretch.interval) {
+                breakType += "stretch";
+            }
+
+            // ❌ אין צורך בהפסקה → אין AI
+            if (!breakType) return;
+            let breakTittle = breakType.trim().split(" ").join(" & ").trim();
+            console.log("Requesting break recommendation for:", breakTittle);
+
+            // ✅ כן צריך הפסקה → שואלים AI
+            const response = await fetch("http://localhost:3001/analyze", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    breakTittle,
+                    activity: stats
+                })
+            });
+
+            const recommendation = await response.json();
+            console.log("Received recommendation:", recommendation);
+
             sendNotification(
-                "Eye Break",
-                "עצום עיניים 20 שניות והסתכל למרחק"
+                recommendation.title,
+                recommendation.message
             );
-            breaksLast.eye = now;                   // ✏️ שונה
-        }
 
-        if (now - breaksLast.stretch >= BREAKS.stretch.interval) {
-            sendNotification(
-                "Stretch Break",
-                "קום מהכיסא ועשה מתיחות קלות"
-            );
-            breaksLast.stretch = now;               // ✏️ שונה
+            // עדכון זמן ההפסקה
+            breaksLast[breakType] = now;
+            chrome.storage.local.set({ breaksLast });
         }
-
-        chrome.storage.local.set({ breaksLast });   // 🆕 נוסף – קריטי
-    });
+    );
 });
 
+
+async function analyzeWithAI(stats) {
+    const res = await fetch("http://localhost:3001/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(stats)
+    });
+
+    return await res.json();
+}
+
+
 function sendNotification(title, message) {
+    console.log("Sending notification:", title, message);
     chrome.notifications.create({
         type: "basic",
-        iconUrl: "icon.png",
+        iconUrl: "/icon.png",
         title: title,
         message: message,
         priority: 2

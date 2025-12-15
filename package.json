@@ -16,5 +16,8 @@
     "url": "https://github.com/Sima-Shulman/Screen-Break-ai/issues"
   },
   "homepage": "https://github.com/Sima-Shulman/Screen-Break-ai#readme",
-  "description": ""
+  "description": "",
+  "dependencies": {
+    "dotenv": "^17.2.3"
+  }
 }
