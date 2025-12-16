@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
   font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -5,7 +9,7 @@
 
   color-scheme: dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #1a1d21; /* Darker background */
+  background-color: #1a1d21;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -16,25 +20,21 @@
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
-  width: 350px; /* A bit wider for better spacing */
-  min-height: 400px;
-  background-color: #1a1d21;
+  width: 400px;
+  min-height: 600px;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  overflow-x: hidden;
 }
 
 #root {
   width: 100%;
-  padding: 1.5rem;
-  text-align: center;
+  min-height: 100vh;
 }
 
 .app-container {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  align-items: center;
   width: 100%;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
 }
 
 h1 {
