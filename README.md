@@ -1,4 +1,4 @@
-# 💪 Posture Guardian AI
+# 💪 Screen Break AI
 
 > Your intelligent wellness companion for healthier screen time habits
 
@@ -69,7 +69,7 @@ Screen-Break-ai/
 ### 1️⃣ Clone & Install
 
 ```bash
-git clone https://github.com/yourusername/posture-guardian.git
+git clone https://github.com/Sima-Shulman/Screen-Break-ai.git
 cd posture-guardian
 
 # Install backend dependencies
@@ -226,14 +226,14 @@ Contributions are welcome! Please:
 
 ## 📝 License
 
-MIT License - see [LICENSE](LICENSE) file
 
 ---
 
 ## 👤 Author
 
 **Your Name**
-- GitHub: [@yourusername](https://github.com/yourusername)
+- GitHub: [@Sima-Shulman](https://github.com/Sima-Shulman)
+- GitHub: [@Bracha-Rosenfeld](https://github.com/Bracha-Rosenfeld)
 ---
 
 ## 🙏 Acknowledgments
@@ -249,7 +249,8 @@ MIT License - see [LICENSE](LICENSE) file
 
 - 🐛 Found a bug? [Open an issue](https://github.com/sima-shulman//issues)
 - 💡 Have a feature request? [Start a discussion](https://github.com/sima-shulman/posture-guardian/discussions)
-- 📧 Email: your.email@example.com
+- 📧 Email: s0583295158@gmail.com
+            bracharosenfeld@gmail.com
 
 ---
 
