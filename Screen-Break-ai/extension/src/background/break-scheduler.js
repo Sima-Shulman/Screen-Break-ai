@@ -3,7 +3,6 @@ import { Achievements } from '../../utils/gamification.js';
 
 console.log("Background service worker running");
 
-
 chrome.runtime.onInstalled.addListener(() => {
     chrome.storage.local.set({
         total_activity: {
@@ -12,68 +11,29 @@ chrome.runtime.onInstalled.addListener(() => {
             scrollDistance: 0,
             screenTime: 0
         },
+        pendingActivity: {},
+        breaks_taken: 0,
         breaksLast: {
             eye: Date.now(),
             stretch: Date.now()
-        }
+        },
+        intervals: { eye: 20, stretch: 60 },
+        notifications: { enabled: true, sound: true, priority: 'high' },
+        theme: 'dark'
     });
 
-    // Create alarms
     chrome.alarms.create("checkBreaks", { periodInMinutes: 1 });
-    chrome.alarms.create("saveStats", { periodInMinutes: 60 });
-    chrome.alarms.create("resetStats", { periodInMinutes: 24 * 60 }); // Daily alarm
+    chrome.alarms.create("saveStats", { periodInMinutes: 5 });
+    chrome.alarms.create("resetStats", { periodInMinutes: 24 * 60 });
     chrome.alarms.create("checkAchievements", { periodInMinutes: 5 });
 });
+chrome.alarms.onAlarm.addListener(async alarm => {
 
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    (async () => {
-        if (message.type === "GET_STATS") {
-            const result = await new Promise(resolve => chrome.storage.local.get(["total_activity"], resolve));
-            sendResponse(result.total_activity || {
-                clicks: 0,
-                keystrokes: 0,
-                scrollDistance: 0,
-                screenTime: 0
-            });
-        } else if (message.type === "UPDATE_STATS") {
-            const result = await new Promise(resolve => chrome.storage.local.get(["total_activity"], resolve));
-            const stats = result.total_activity || {
-                clicks: 0,
-                keystrokes: 0,
-                scrollDistance: 0,
-                screenTime: 0
-            };
-
-            stats.clicks += message.data.clicks;
-            stats.keystrokes += message.data.keystrokes;
-            stats.scrollDistance += message.data.scrollDistance;
-            stats.screenTime += message.data.screenTime;
-
-            await new Promise(resolve => chrome.storage.local.set({ total_activity: stats }, resolve));
-            sendResponse({ success: true });
-        } else if (message.type === "TRIGGER_BREAK") {
-            sendNotification(
-                "Time for a break!",
-                "You've earned it! Step away from the screen."
-            );
-            sendResponse({ success: true });
-        }
-    })();
-
-    return true; // Keep the message channel open for async response
-});
-
-const BREAKS = {
-    eye: { interval: 20 * 60 * 1000 },
-    stretch: { interval: 60 * 60 * 1000 }
-};
-
-chrome.alarms.onAlarm.addListener(async (alarm) => {
     if (alarm.name === "saveStats") {
         await StorageManager.saveDailyStats();
         return;
     }
-    
+
     if (alarm.name === "resetStats") {
         await StorageManager.resetDailyStats();
         return;
@@ -83,16 +43,14 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
         await Achievements.checkUnlocks();
         return;
     }
-
-    if (alarm.name !== "checkBreaks") return;
-
     const now = Date.now();
-    const { breaksLast, total_activity: stats } = await new Promise(resolve => 
+    const { breaksLast, total_activity: stats } = await new Promise(resolve =>
         chrome.storage.local.get(["breaksLast", "total_activity"], resolve)
     );
 
     if (!breaksLast || !stats) return;
 
+    const BREAKS = await getBreakIntervals();
     const breakRecommendations = [];
 
     if (now - breaksLast.eye >= BREAKS.eye.interval) {
@@ -117,6 +75,7 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
             body: JSON.stringify({
                 breakTitle,
                 activity: stats,
+                //breaksLast????????????????????????????????
             }),
         });
 
@@ -127,11 +86,10 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
         const recommendation = await response.json();
         console.log("Received recommendation:", recommendation);
 
-        // Create exercise data structure
         const exerciseData = {
             name: recommendation.title || breakTitle,
             description: recommendation.message,
-            duration: recommendation.duration || 30, // Default 30 seconds
+            duration: recommendation.duration || 30,
             steps: recommendation.steps || [
                 "Sit up straight",
                 "Take a deep breath",
@@ -145,7 +103,6 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
 
     } catch (error) {
         console.error("AI analysis failed, sending default notification:", error);
-        // Send a default notification if the AI service fails
         const defaultTitle = breakTitle;
         const defaultMessage = "Take a moment to rest your eyes and stretch your body.";
         const defaultExercise = {
@@ -173,17 +130,16 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
 function sendNotification(title, message, exerciseData = null) {
     const notificationId = `break-notification-${Date.now()}`;
     console.log("Sending notification:", title, message);
-    
-    // Store exercise data for the popup to access
+
     if (exerciseData) {
-        chrome.storage.local.set({ 
+        chrome.storage.local.set({
             pendingExercise: {
                 ...exerciseData,
                 timestamp: Date.now()
             }
         });
     }
-    
+
     chrome.notifications.create(notificationId, {
         type: "basic",
         iconUrl: "/icon.png",
@@ -194,12 +150,23 @@ function sendNotification(title, message, exerciseData = null) {
 }
 
 chrome.notifications.onClicked.addListener((notificationId) => {
-    // Clear the notification
     chrome.notifications.clear(notificationId);
-    
-    // Open the extension popup by creating a new tab with the popup URL
-    chrome.tabs.create({ 
+
+    chrome.tabs.create({
         url: chrome.runtime.getURL("src/popup/dist/index.html"),
         active: true
     });
+
 });
+
+
+const getBreakIntervals = async () => {
+    const result = await new Promise(resolve =>
+        chrome.storage.local.get(['intervals'], resolve)
+    );
+    const intervals = result.intervals || { eye: 1, stretch: 60 };
+    return {
+        eye: { interval: intervals.eye * 60 * 1000 },
+        stretch: { interval: intervals.stretch * 60 * 1000 }
+    };
+};
