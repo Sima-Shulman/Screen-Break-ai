@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { Activity, Eye, TrendingUp, Award, Clock, Target } from 'lucide-react';
 
-const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444'];
+// const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444'];
 
 const EnhancedDashboard = () => {
   const [stats, setStats] = useState({
@@ -25,7 +25,7 @@ const EnhancedDashboard = () => {
           return;
         }
 
-        // Stats
+        // Stats - add real-time screen time calculation
         if (data.total_activity) {
           setStats(data.total_activity);
         }
@@ -84,16 +84,16 @@ const EnhancedDashboard = () => {
           setAchievements(userAchievements);
         }
         
-        // Next break countdown
-        if(data.breaksLast) {
-            const eyeBreakInterval = 2 * 60 * 1000;
-            const stretchBreakInterval = 6 * 60 * 1000;
+        // Next break countdown - use actual user intervals
+        if(data.breaksLast && data.intervals) {
+            const eyeBreakInterval = data.intervals.eye * 60 * 1000;
+            const stretchBreakInterval = data.intervals.stretch * 60 * 1000;
             const now = Date.now();
             
             const nextEyeBreak = (data.breaksLast.eye + eyeBreakInterval - now) / 60000;
             const nextStretchBreak = (data.breaksLast.stretch + stretchBreakInterval - now) / 60000;
 
-            setNextBreak(Math.floor(Math.min(nextEyeBreak, nextStretchBreak)));
+            setNextBreak(Math.floor(Math.max(0, Math.min(nextEyeBreak, nextStretchBreak))));
         }
 
       });
@@ -109,17 +109,14 @@ const EnhancedDashboard = () => {
 
     chrome.storage.onChanged.addListener(listener);
 
+    const countdownTimer = setInterval(() => {
+        setNextBreak(prev => Math.max(0, prev - 1));
+    }, 60000);
+
     return () => {
       chrome.storage.onChanged.removeListener(listener);
+      clearInterval(countdownTimer);
     };
-  }, []);
-
-  // Update countdown timer for next break
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setNextBreak(prev => (prev > 0 ? prev - 1 : 0));
-    }, 60000); // Update every minute
-    return () => clearInterval(timer);
   }, []);
 
 
@@ -137,11 +134,11 @@ const EnhancedDashboard = () => {
     return '#ef4444';
   };
 
-  const activityData = [
-    { name: 'Clicks', value: stats.clicks },
-    { name: 'Keystrokes', value: stats.keystrokes },
-    { name: 'Scrolls', value: stats.scrollDistance },
-  ];
+  //const activityData = [
+  //  { name: 'Clicks', value: stats.clicks },
+    //{ name: 'Keystrokes', value: stats.keystrokes },
+    //{ name: 'Scrolls', value: stats.scrollDistance },
+  //];
 
   return (
     <div className="w-full p-4 bg-gradient-to-br from-slate-900 to-slate-800 min-h-screen overflow-y-auto">

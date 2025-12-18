@@ -96,7 +96,10 @@ function Settings() {
                     min="5"
                     max="120"
                     value={intervals.eye}
-                    onChange={(e) => setIntervals({...intervals, eye: +e.target.value})}
+                    onChange={(e) => {
+                      const value = Math.max(5, Math.min(120, +e.target.value));
+                      setIntervals({...intervals, eye: value});
+                    }}
                     className="w-20 bg-slate-800 text-white px-3 py-2 rounded-lg text-center font-bold"
                   />
                   <span className="text-slate-400">min</span>
@@ -116,7 +119,10 @@ function Settings() {
                     min="15"
                     max="240"
                     value={intervals.stretch}
-                    onChange={(e) => setIntervals({...intervals, stretch: +e.target.value})}
+                    onChange={(e) => {
+                      const value = Math.max(15, Math.min(240, +e.target.value));
+                      setIntervals({...intervals, stretch: value});
+                    }}
                     className="w-20 bg-slate-800 text-white px-3 py-2 rounded-lg text-center font-bold"
                   />
                   <span className="text-slate-400">min</span>
@@ -247,6 +253,34 @@ function Settings() {
             <RefreshCw size={20} />
             Reset
           </button>
+        </div>
+
+        {/* Debug Section */}
+        <div className="mb-6">
+          <h2 className="text-lg font-bold text-white mb-4">🔧 Debug Tools</h2>
+          
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              onClick={async () => {
+                const result = await chrome.runtime.sendMessage({ type: 'SAVE_STATS_NOW' });
+                alert('Stats saved! Check console.');
+              }}
+              className="bg-yellow-500 hover:bg-yellow-600 text-white py-2 rounded-lg font-bold text-sm transition-all"
+            >
+              💾 Save Now
+            </button>
+
+            <button
+              onClick={async () => {
+                const history = await chrome.runtime.sendMessage({ type: 'GET_HISTORY' });
+                console.log('Current History:', history);
+                alert(`History has ${Object.keys(history).length} days`);
+              }}
+              className="bg-purple-500 hover:bg-purple-600 text-white py-2 rounded-lg font-bold text-sm transition-all"
+            >
+              📈 Check History
+            </button>
+          </div>
         </div>
 
         {/* Info */}
