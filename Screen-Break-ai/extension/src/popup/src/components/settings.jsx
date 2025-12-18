@@ -38,11 +38,15 @@ function Settings() {
       setIsSaved(true);
       setTimeout(() => setIsSaved(false), 2000);
       
-      // עדכן את ה-alarms
-      chrome.runtime.sendMessage({
-        type: 'UPDATE_INTERVALS',
-        data: intervals
-      });
+      // עדכן את ה-alarms with error handling
+      try {
+        chrome.runtime.sendMessage({
+          type: 'UPDATE_INTERVALS',
+          data: intervals
+        });
+      } catch (error) {
+        console.log('Background script not available:', error);
+      }
     });
   };
 
@@ -262,8 +266,12 @@ function Settings() {
           <div className="grid grid-cols-2 gap-3">
             <button
               onClick={async () => {
-                const result = await chrome.runtime.sendMessage({ type: 'SAVE_STATS_NOW' });
-                alert('Stats saved! Check console.');
+                try {
+                  const result = await chrome.runtime.sendMessage({ type: 'SAVE_STATS_NOW' });
+                  alert('Stats saved! Check console.');
+                } catch (error) {
+                  alert('Background script not available');
+                }
               }}
               className="bg-yellow-500 hover:bg-yellow-600 text-white py-2 rounded-lg font-bold text-sm transition-all"
             >
@@ -272,9 +280,16 @@ function Settings() {
 
             <button
               onClick={async () => {
-                const history = await chrome.runtime.sendMessage({ type: 'GET_HISTORY' });
-                console.log('Current History:', history);
-                alert(`History has ${Object.keys(history).length} days`);
+                try {
+                  const history = await chrome.runtime.sendMessage({ type: 'GET_HISTORY' });
+                  console.log('Current History:', history);
+                  alert(`History has ${Object.keys(history).length} days`);
+                } catch (error) {
+                  chrome.storage.local.get(['history'], (result) => {
+                    const history = result.history || {};
+                    alert(`History has ${Object.keys(history).length} days`);
+                  });
+                }
               }}
               className="bg-purple-500 hover:bg-purple-600 text-white py-2 rounded-lg font-bold text-sm transition-all"
             >

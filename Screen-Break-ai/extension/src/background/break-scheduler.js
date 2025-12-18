@@ -3,6 +3,37 @@ import { Achievements } from '../../utils/gamification.js';
 
 console.log("Background service worker running");
 
+// Keep service worker alive and handle messages
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    // Handle any messages from popup/content scripts
+    if (message.type === 'ping') {
+        sendResponse({ status: 'alive' });
+        return true;
+    }
+    
+    if (message.type === 'UPDATE_INTERVALS') {
+        // Update break intervals - alarms will use new values on next check
+        sendResponse({ status: 'intervals updated' });
+        return true;
+    }
+    
+    if (message.type === 'SAVE_STATS_NOW') {
+        StorageManager.saveDailyStats().then(() => {
+            sendResponse({ status: 'stats saved' });
+        });
+        return true;
+    }
+    
+    if (message.type === 'GET_HISTORY') {
+        chrome.storage.local.get(['history'], (result) => {
+            sendResponse(result.history || {});
+        });
+        return true;
+    }
+    
+    return true;
+});
+
 chrome.runtime.onInstalled.addListener(() => {
     chrome.storage.local.set({
         total_activity: {
