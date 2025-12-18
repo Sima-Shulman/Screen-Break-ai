@@ -5,26 +5,31 @@ export const StorageManager = {
    * שומר את הסטטיסטיקות של היום ב-history
    */
   async saveDailyStats() {
-    const today = new Date().toISOString().split('T')[0]; // "2025-01-15"
-    const stats = await this.getTodayStats();
-    
-    return new Promise((resolve) => {
-      chrome.storage.local.get(['history'], (result) => {
-        const history = result.history || {};
-        
-        history[today] = {
-          ...stats,
-          breaks_taken: stats.breaks || 0,
-          health_score: this.calculateHealthScore(stats),
-          timestamp: Date.now()
-        };
-        
-        chrome.storage.local.set({ history }, () => {
-          console.log('✅ Daily stats saved:', history[today]);
-          resolve(history[today]);
+    try {
+      const today = new Date().toISOString().split('T')[0]; // "2025-01-15"
+      const stats = await this.getTodayStats();
+
+      return new Promise((resolve) => {
+        chrome.storage.local.get(['history'], (result) => {
+          const history = result.history || {};
+
+          history[today] = {
+            ...stats,
+            breaks_taken: stats.breaks || 0,
+            health_score: this.calculateHealthScore(stats),
+            timestamp: Date.now()
+          };
+
+          chrome.storage.local.set({ history }, () => {
+            console.log('✅ Daily stats saved:', history[today]);
+            resolve(history[today]);
+          });
         });
       });
-    });
+    } catch (error) {
+      console.error('❌ Failed to save daily stats:', error);
+      return null;
+    }
   },
 
   /**
@@ -32,21 +37,21 @@ export const StorageManager = {
    */
   calculateHealthScore(stats) {
     let score = 100;
-    
+
     // קנס על זמן מסך ארוך
     const screenHours = stats.screenTime / 3600;
     if (screenHours > 8) score -= 30;
     else if (screenHours > 6) score -= 15;
     else if (screenHours > 4) score -= 5;
-    
+
     // בונוס על הפסקות
     const breaks = stats.breaks || 0;
     score += Math.min(breaks * 5, 20); // עד 20 נקודות
-    
+
     // קנס על פעילות מופרזת
     if (stats.clicks > 10000) score -= 10;
     if (stats.keystrokes > 20000) score -= 10;
-    
+
     return Math.max(0, Math.min(100, Math.round(score)));
   },
 
@@ -56,8 +61,15 @@ export const StorageManager = {
   async getTodayStats() {
     return new Promise((resolve) => {
       chrome.storage.local.get(['total_activity', 'breaks_taken'], (result) => {
+        const activity = result.total_activity || {
+          clicks: 0,
+          keystrokes: 0,
+          scrollDistance: 0,
+          screenTime: 0
+        };
+
         resolve({
-          ...result.total_activity,
+          ...activity,
           breaks: result.breaks_taken || 0
         });
       });
@@ -72,7 +84,7 @@ export const StorageManager = {
       chrome.storage.local.get(['history'], (result) => {
         const history = result.history || {};
         const entries = Object.entries(history);
-        
+
         // ממיין לפי תאריך ולוקח את 7 האחרונים
         const last7Days = entries
           .sort((a, b) => new Date(b[0]) - new Date(a[0]))
@@ -81,13 +93,13 @@ export const StorageManager = {
           .map(([date, data]) => ({
             date,
             day: new Date(date).toLocaleDateString('en-US', { weekday: 'short' }),
-            screenTime: (data.screenTime / 3600).toFixed(1), // המרה לשעות
+            screenTime: (data.screenTime / 3600).toFixed(1),
             breaks: data.breaks_taken || 0,
             score: data.health_score || 0,
             clicks: data.clicks || 0,
-            keystrokes: data.keystrokes || 0
+            keystrokes: data.keystrokes || 0,
+            scrollDistance: data.scrollDistance || 0
           }));
-        
         resolve(last7Days);
       });
     });
@@ -99,7 +111,7 @@ export const StorageManager = {
   async calculateStreak() {
     const weeklyData = await this.getWeeklyData();
     let streak = 0;
-    
+
     // מתחיל מהיום האחרון ועובר אחורה
     for (let i = weeklyData.length - 1; i >= 0; i--) {
       if (weeklyData[i].score >= 70) {
@@ -108,7 +120,7 @@ export const StorageManager = {
         break; // עוצר אם היה יום עם ציון נמוך
       }
     }
-    
+
     return streak;
   },
 
@@ -133,7 +145,7 @@ export const StorageManager = {
   async resetDailyStats() {
     // קודם שומר את הנתונים להיסטוריה
     await this.saveDailyStats();
-    
+
     // אז מאפס
     chrome.storage.local.set({
       total_activity: {
@@ -144,7 +156,7 @@ export const StorageManager = {
       },
       breaks_taken: 0
     });
-    
+
     console.log('✅ Daily stats reset');
   }
 };
