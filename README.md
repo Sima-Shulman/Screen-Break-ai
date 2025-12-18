@@ -247,8 +247,8 @@ Contributions are welcome! Please:
 
 ## 📞 Support
 
-- 🐛 Found a bug? [Open an issue](https://github.com/sima-shulman//issues)
-- 💡 Have a feature request? [Start a discussion](https://github.com/sima-shulman/posture-guardian/discussions)
+- 🐛 Found a bug? [Open an issue](https://github.com/Sima-Shulman/Screen-Break-ai/issues)
+- 💡 Have a feature request? [Start a discussion](https://github.com/Sima-Shulman/Screen-Break-ai/discussions)
 - 📧 Email: s0583295158@gmail.com
             bracharosenfeld@gmail.com
 
