@@ -35,14 +35,14 @@ export const Achievements = {
       name: 'Posture Master',
       icon: '⭐',
       description: 'Achieve health score of 90+',
-      condition: (stats) => stats.health_score >= 90
+      condition: (stats) => stats.health_score >= 90 && stats.total_breaks >= 20 && stats.streak >= 7
     },
     {
       id: 'wellness_warrior',
       name: 'Wellness Warrior',
       icon: '🏆',
       description: 'Complete 50 total breaks',
-      condition: (stats) => stats.total_breaks >= 50
+      condition: (stats) => stats.total_breaks >= 150
     },
     {
       id: 'zen_master',
@@ -56,7 +56,7 @@ export const Achievements = {
       name: 'Productivity Pro',
       icon: '🚀',
       description: 'Screen time under 4 hours for 7 days',
-      condition: (stats) => stats.avg_screen_time < 4 * 3600
+      condition: (stats) => stats.avg_screen_time < 4 * 3600 && stats.streak >= 7
     }
   ],
 
