@@ -7,7 +7,16 @@
   "permissions": [
     "storage",
     "notifications",
-    "alarms"
+    "alarms",
+    "idle",
+    "downloads"
+  ],
+
+
+
+  
+  "host_permissions": [
+    "<all_urls>"
   ],
 
   "background": {
@@ -20,7 +29,13 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["src/content/activity-tracker.js"]
+      "js": ["src/content/activity-tracker.js"],
+
+
+
+
+      "run_at": "document_start",
+      "all_frames": false
     }
   ]
 }
