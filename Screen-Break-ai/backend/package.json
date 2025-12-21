@@ -2,7 +2,7 @@
   "name": "screen-break-backend",
   "type": "module",
   "version": "1.0.0",
-  "main": "src/server.js",
+  "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "test": "npx jest",
@@ -17,7 +17,8 @@
     "@google/genai": "^1.33.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
-    "express": "^5.2.1"
+    "express": "^4.19.2",
+    "ws": "^8.18.3"
   },
   "devDependencies": {
     "jest": "^29.7.0",

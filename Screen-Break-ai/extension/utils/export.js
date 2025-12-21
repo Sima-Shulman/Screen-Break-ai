@@ -1,4 +1,4 @@
-// extension/src/utils/export.js
+// extension/utils/export.js
 
 import { StorageManager } from './storage-manager.js';
 import { Achievements } from './gamification.js';

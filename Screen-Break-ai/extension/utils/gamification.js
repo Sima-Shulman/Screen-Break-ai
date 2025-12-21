@@ -1,4 +1,4 @@
-// extension/src/utils/gamification.js
+// extension/utils/gamification.js
 
 export const Achievements = {
   list: [

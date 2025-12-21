@@ -99,14 +99,18 @@ chrome.alarms.onAlarm.addListener(async alarm => {
     const breakTitle = breakRecommendations.map(b => b.title).join(" & ");
     console.log("Requesting break recommendation for:", breakTitle);
 
+    const history = await new Promise(resolve =>
+        chrome.storage.local.get(['history'], result => resolve(result.history || {}))
+    );
+
     try {
         const response = await fetch("http://localhost:3001/analyze", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                breakTitle,
+                breakType: breakTitle,
                 activity: stats,
-                //breaksLast????????????????????????????????
+                history: history
             }),
         });
 
@@ -184,7 +188,7 @@ chrome.notifications.onClicked.addListener((notificationId) => {
     chrome.notifications.clear(notificationId);
 
     chrome.tabs.create({
-        url: chrome.runtime.getURL("src/popup/dist/index.html"),
+        url: chrome.runtime.getURL("popup/dist/index.html"),
         active: true
     });
 

@@ -1,6 +1,5 @@
 import dotenv from "dotenv";
 import express from "express";
-import bodyParser from "body-parser";
 import { GoogleGenAI } from "@google/genai";
 
 dotenv.config();
@@ -57,14 +56,14 @@ export const parseAIResponse = (text) => {
 
 export const validateRequest = (req) => {
     const { breakType, activity } = req.body;
-    
+
     if (!breakType || !activity) {
         throw new Error("Missing required fields: breakType and activity");
     }
-    
-    if (typeof activity.clicks !== 'number' || 
-        typeof activity.keystrokes !== 'number' || 
-        typeof activity.scrollDistance !== 'number' || 
+
+    if (typeof activity.clicks !== 'number' ||
+        typeof activity.keystrokes !== 'number' ||
+        typeof activity.scrollDistance !== 'number' ||
         typeof activity.screenTime !== 'number') {
         throw new Error("Invalid activity data types");
     }
@@ -72,7 +71,8 @@ export const validateRequest = (req) => {
 
 export const createApp = () => {
     const app = express();
-    app.use(bodyParser.json());
+    app.use(express.json());
+    app.use(express.urlencoded({ extended: true }));
     return app;
 };
 
@@ -122,7 +122,7 @@ const app = createApp();
 app.post("/analyze", async (req, res) => {
     try {
         validateRequest(req);
-        
+
         const { breakType, activity, history } = req.body;
         const prompt = createPrompt(breakType, activity, history);
 
@@ -132,20 +132,22 @@ app.post("/analyze", async (req, res) => {
         });
 
         const text = result.candidates[0].content.parts[0].text;
+        console.log("Ai response text: ", text);        
         const response = parseAIResponse(text);
-        
+
         res.json(response);
     } catch (error) {
+        console.log("AI error: ", error);
+        
         res.status(500).json({ error: error.message });
     }
 });
 
 const PORT = process.env.PORT || 3001;
 
-if (process.argv[1] && !process.argv[1].includes('jest')) {
-    app.listen(PORT, () => {
-        console.log(`AI server running on port ${PORT}`);
-    });
-}
+app.listen(PORT, () => {
+    console.log(`AI server running on port ${PORT}`);
+});
+
 
 export default app;

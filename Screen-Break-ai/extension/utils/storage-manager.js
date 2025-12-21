@@ -1,4 +1,4 @@
-// extension/src/utils/storage-manager.js
+// extension/utils/storage-manager.js
 
 export const StorageManager = {
   /**

@@ -42,16 +42,14 @@
 ```
 Screen-Break-ai/
 ├── extension/           # Chrome Extension (React)
-│   ├── src/
-│   │   ├── background/  # Service worker
-│   │   ├── content/     # Activity tracker
-│   │   ├── popup/       # React UI
-│   │   └── utils/       # Storage, Gamification, Export
+│   │── background/  # Service worker
+│   │── content/     # Activity tracker
+│   │── popup/       # React UI
+│   │── utils/       # Storage, Gamification, Export
 │   └── manifest.json
 │
 ├── backend/             # Node.js + Express
-│   └── src/
-│       └── server.js    # Gemini AI integration
+│   └── server.js    # Gemini AI integration
 │
 ├── tests/               # Jest tests
 └── docker-compose.yml   # Docker setup

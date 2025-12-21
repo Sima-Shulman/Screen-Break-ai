@@ -1,4 +1,4 @@
-// extension/src/popup/App.jsx
+// extension/popup/App.jsx
 import React, { useState, useEffect } from "react";
 import EnhancedDashboard from "./components/EnhancedDashboard.jsx";
 import ExerciseModal from "./components/ExerciseModal.jsx";

@@ -6,7 +6,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "build": "cd src/popup && npm run build"
+    "build": "cd popup && npm run build"
   },
   "devDependencies": {
     "jest": "^29.7.0",

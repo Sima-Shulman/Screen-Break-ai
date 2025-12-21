@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Settings as SettingsIcon, Save, RefreshCw, Download, Share2 } from 'lucide-react';
-import { ExportUtils } from '../../../../utils/export.js'
+import { ExportUtils } from '../../../utils/export.js'
 
 function Settings() {
   const [intervals, setIntervals] = useState({
