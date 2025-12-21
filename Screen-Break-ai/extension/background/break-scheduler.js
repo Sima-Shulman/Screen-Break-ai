@@ -1,5 +1,5 @@
-import { StorageManager } from '../../utils/storage-manager.js';
-import { Achievements } from '../../utils/gamification.js';
+import { StorageManager } from '../utils/storage-manager.js';
+import { Achievements } from '../utils/gamification.js';
 
 console.log("Background service worker running");
 
