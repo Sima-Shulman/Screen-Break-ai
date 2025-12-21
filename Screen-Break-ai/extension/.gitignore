@@ -1,0 +1,9 @@
+.env
+node_modules/
+
+# Coverage files
+coverage/
+lcov.info
+lcov-report/
+clover.xml
+coverage-final.json
