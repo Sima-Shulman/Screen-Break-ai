@@ -96,7 +96,8 @@ export const Achievements = {
    * מציג התראה על achievement חדש
    */
   showAchievementNotification(achievement) {
-    chrome.notifications.create({
+    const notificationId = `break-notification-${achievement.id}`;
+    chrome.notifications.create(notificationId, {
       type: 'basic',
       iconUrl: '/icon.png',
       title: '🎉 Achievement Unlocked!',

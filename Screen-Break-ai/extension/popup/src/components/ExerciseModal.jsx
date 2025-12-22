@@ -1,14 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { X, Play, Pause, CheckCircle } from 'lucide-react';
 
-function ExerciseModal({ exercise, onClose, onComplete,onSkip }) {
+function ExerciseModal({ exercise, onClose, onComplete }) {
+  if (!exercise) return null;
+
   const [currentStep, setCurrentStep] = useState(0);
   const [timeLeft, setTimeLeft] = useState(exercise?.duration || 30);
   const [isPaused, setIsPaused] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
 
   useEffect(() => {
-    if (!exercise || isPaused || isCompleted) return;
+    if (isPaused || isCompleted) {
+      return;
+    }
 
     const timer = setInterval(() => {
       setTimeLeft(prev => {
@@ -18,11 +22,13 @@ function ExerciseModal({ exercise, onClose, onComplete,onSkip }) {
           return 0;
         }
         
-        // עדכן step כל X שניות
-        const stepDuration = exercise.duration / exercise.steps.length;
-        const newStep = Math.floor((exercise.duration - prev) / stepDuration);
-        if (newStep !== currentStep && newStep < exercise.steps.length) {
-          setCurrentStep(newStep);
+        // Update step every X seconds
+        if (exercise.steps && exercise.steps.length > 0) {
+          const stepDuration = exercise.duration / exercise.steps.length;
+          const newStep = Math.floor((exercise.duration - prev + 1) / stepDuration);
+          if (newStep !== currentStep && newStep < exercise.steps.length) {
+            setCurrentStep(newStep);
+          }
         }
         
         return prev - 1;
@@ -113,15 +119,13 @@ const handleSkip = () => {
               onClick={togglePause}
               className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-all"
             >
-              {isPaused ? (
-                <>
-                  <Play size={20} /> Resume
-                </>
-              ) : (
-                <>
-                  <Pause size={20} /> Pause
-                </>
-              )}
+              {isPaused ? [
+                <Play key="play" size={20} />,
+                ' Resume'
+              ] : [
+                <Pause key="pause" size={20} />,
+                ' Pause'
+              ]}
             </button>
             
             <button
@@ -137,7 +141,7 @@ const handleSkip = () => {
         <div className="p-6 bg-slate-900/50 rounded-b-3xl">
           <h3 className="text-lg font-bold text-white mb-4">Instructions:</h3>
           <div className="space-y-3">
-            {exercise.steps.map((step, idx) => (
+            {exercise.steps && exercise.steps.length > 0 ? exercise.steps.map((step, idx) => (
               <div
                 key={idx}
                 className={`p-4 rounded-xl transition-all ${
@@ -155,7 +159,11 @@ const handleSkip = () => {
                   <span className="flex-1">{step}</span>
                 </div>
               </div>
-            ))}
+            )) : (
+              <div className="p-4 rounded-xl bg-slate-800 text-slate-400">
+                <p>{exercise.description || 'Follow the exercise instructions'}</p>
+              </div>
+            )}
           </div>
         </div>
 

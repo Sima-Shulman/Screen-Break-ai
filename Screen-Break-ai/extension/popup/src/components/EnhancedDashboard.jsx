@@ -193,7 +193,7 @@ const EnhancedDashboard = () => {
           Weekly Health Score
         </h3>
         <ResponsiveContainer width="100%" height={150}>
-          <BarChart data={weeklyData}>
+          <BarChart data={weeklyData || []}>
             <CartesianGrid strokeDasharray="3 3" stroke="#475569" />
             <XAxis dataKey="day" stroke="#94a3b8" fontSize={12} />
             <YAxis stroke="#94a3b8" fontSize={12} />
@@ -213,9 +213,9 @@ const EnhancedDashboard = () => {
           Achievements
         </h3>
         <div className="grid grid-cols-4 gap-2">
-          {achievements.slice(0, 8).map((achievement, idx) => (
+          {achievements && achievements.length > 0 ? achievements.slice(0, 8).map((achievement, idx) => (
             <div
-              key={idx}
+              key={achievement.id || idx}
               className={`p-2 rounded-lg text-center transition-all ${
                 achievement.unlocked
                   ? 'bg-gradient-to-br from-yellow-500 to-orange-500 shadow-lg'
@@ -225,7 +225,11 @@ const EnhancedDashboard = () => {
               <div className="text-2xl mb-1">{achievement.icon}</div>
               <div className="text-white font-medium text-xs">{achievement.name}</div>
             </div>
-          ))}
+          )) : (
+            <div className="col-span-4 text-center text-slate-400 py-4">
+              No achievements yet
+            </div>
+          )}
         </div>
       </div>
 

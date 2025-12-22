@@ -30,12 +30,14 @@
     {
       "matches": ["<all_urls>"],
       "js": ["content/activity-tracker.js"],
-
-
-
-
       "run_at": "document_start",
       "all_frames": false
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [],
+      "matches": ["<all_urls>"]
     }
   ]
 }
