@@ -260,7 +260,7 @@ function Settings() {
         </div>
 
         {/* Debug Section */}
-        <div className="mb-6">
+        {/* <div className="mb-6">
           <h2 className="text-lg font-bold text-white mb-4">🔧 Debug Tools</h2>
           
           <div className="grid grid-cols-2 gap-3">
@@ -296,7 +296,7 @@ function Settings() {
               📈 Check History
             </button>
           </div>
-        </div>
+        </div> */}
 
         {/* Info */}
         <div className="mt-6 p-4 bg-blue-500/10 border border-blue-500/30 rounded-xl">
