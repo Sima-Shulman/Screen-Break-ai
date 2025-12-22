@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Play, Pause, CheckCircle } from 'lucide-react';
 
-function ExerciseModal({ exercise, onClose, onComplete }) {
+function ExerciseModal({ exercise, onClose, onComplete,onSkip }) {
   const [currentStep, setCurrentStep] = useState(0);
   const [timeLeft, setTimeLeft] = useState(exercise?.duration || 30);
   const [isPaused, setIsPaused] = useState(false);
@@ -35,7 +35,7 @@ function ExerciseModal({ exercise, onClose, onComplete }) {
   const handleComplete = () => {
     setIsCompleted(true);
     if (onComplete) {
-      onComplete();
+      onComplete?.();
     }
   };
 
@@ -43,9 +43,13 @@ function ExerciseModal({ exercise, onClose, onComplete }) {
     setIsPaused(!isPaused);
   };
 
-  const handleSkip = () => {
-    handleComplete();
-  };
+  // const handleSkip = () => {
+  //   handleComplete();
+  // };
+const handleSkip = () => {
+  if (onSkip) onSkip();
+  onClose();
+};
 
   if (!exercise) return null;
 

@@ -27,14 +27,35 @@ function App() {
     });
   }, []);
 
-  const handleBreakComplete = () => {
+  // const handleBreakComplete = (didComplete) => {
+  //   setShowExercise(false);
+  //   // עדכן מונה הפסקות
+  //    if (!didComplete) return;
+  //   chrome.storage.local.get(['breaks_taken'], (result) => {
+  //     const count = (result.breaks_taken || 0) + 1;
+  //     chrome.storage.local.set({ breaks_taken: count });
+  //   });
+  // };
+  const handleBreakComplete = (status) => {
     setShowExercise(false);
-    // עדכן מונה הפסקות
-    chrome.storage.local.get(['breaks_taken'], (result) => {
-      const count = (result.breaks_taken || 0) + 1;
-      chrome.storage.local.set({ breaks_taken: count });
+
+    // Only increment break count and trigger achievements if exercise was actually completed
+    if (status === 'completed') {
+      // Send message to background script to handle the completion
+      chrome.runtime.sendMessage({ type: 'EXERCISE_COMPLETED' }, (response) => {
+        console.log('Exercise completion processed:', response);
+      });
+    }
+
+    // Store the result for analytics but don't increment counters for skipped exercises
+    chrome.storage.local.set({
+      exerciseResult: {
+        status,
+        timestamp: Date.now()
+      }
     });
   };
+
 
   return (
     <div className="app-container">
@@ -42,17 +63,15 @@ function App() {
       <div className="flex gap-2 p-4 bg-slate-900">
         <button
           onClick={() => setCurrentView('dashboard')}
-          className={`px-4 py-2 rounded-lg ${
-            currentView === 'dashboard' ? 'bg-blue-500 text-white' : 'bg-slate-800 text-slate-400'
-          }`}
+          className={`px-4 py-2 rounded-lg ${currentView === 'dashboard' ? 'bg-blue-500 text-white' : 'bg-slate-800 text-slate-400'
+            }`}
         >
           📊 Dashboard
         </button>
         <button
           onClick={() => setCurrentView('settings')}
-          className={`px-4 py-2 rounded-lg ${
-            currentView === 'settings' ? 'bg-blue-500 text-white' : 'bg-slate-800 text-slate-400'
-          }`}
+          className={`px-4 py-2 rounded-lg ${currentView === 'settings' ? 'bg-blue-500 text-white' : 'bg-slate-800 text-slate-400'
+            }`}
         >
           ⚙️ Settings
         </button>
@@ -66,8 +85,13 @@ function App() {
       {showExercise && currentExercise && (
         <ExerciseModal
           exercise={currentExercise}
-          onClose={() => setShowExercise(false)}
-          onComplete={handleBreakComplete}
+          //   onClose={() => setShowExercise(false)}
+          //   onComplete={handleBreakComplete}
+          // 
+          onComplete={() => handleBreakComplete('completed')}
+          onSkip={() => handleBreakComplete('skipped')}
+          onClose={() => handleBreakComplete('closed')}
+
         />
       )}
     </div>
