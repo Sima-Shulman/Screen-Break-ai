@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Settings as SettingsIcon, Save, RefreshCw, Download, Share2 } from 'lucide-react';
-import { ExportUtils } from '../../../utils/export.js'
+import { ExportUtils } from '../../../utils/export.js';
 
 function Settings() {
   const [intervals, setIntervals] = useState({
@@ -237,17 +237,8 @@ function Settings() {
                 : 'bg-blue-500 hover:bg-blue-600 text-white'
             }`}
           >
-            {isSaved ? (
-              <>
-                <Save size={20} />
-                Saved! ✓
-              </>
-            ) : (
-              <>
-                <Save size={20} />
-                Save Changes
-              </>
-            )}
+            <Save size={20} />
+            {isSaved ? 'Saved! ✓' : 'Save Changes'}
           </button>
 
           <button
@@ -260,7 +251,7 @@ function Settings() {
         </div>
 
         {/* Debug Section */}
-        <div className="mb-6">
+        <div className="mt-6">
           <h2 className="text-lg font-bold text-white mb-4">🔧 Debug Tools</h2>
           
           <div className="grid grid-cols-2 gap-3">

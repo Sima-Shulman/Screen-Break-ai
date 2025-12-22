@@ -3,23 +3,47 @@
 import { StorageManager } from './storage-manager.js';
 import { Achievements } from './gamification.js';
 
-export const ExportUtils = {
+export const ExportManager = {
   /**
-   * יוצא דוח שבועי כקובץ טקסט
+   * Get all data needed for exports
+   */
+  async getAllData() {
+    const weeklyData = await StorageManager.getWeeklyData();
+    const achievements = await Achievements.getAchievementsWithStatus();
+    const score = await Achievements.calculateTotalScore();
+    const streak = await StorageManager.calculateStreak();
+    const stats = await Achievements.getUserStats();
+    
+    return {
+      weeklyData,
+      achievements,
+      score,
+      streak,
+      stats
+    };
+  },
+
+  /**
+   * Export weekly report
    */
   async exportWeeklyReport() {
+    return await this.exportAsTXT();
+  },
+
+  /**
+   * Export as TXT format
+   */
+  async exportAsTXT() {
     try {
-      const weeklyData = await StorageManager.getWeeklyData();
-      const achievements = await Achievements.getAchievementsWithStatus();
-      const score = await Achievements.calculateTotalScore();
-      const streak = await StorageManager.calculateStreak();
-    
-    // חישוב סטטיסטיקות מסכמות
-    const totalScreenTime = weeklyData.reduce((sum, day) => sum + parseFloat(day.screenTime), 0);
-    const totalBreaks = weeklyData.reduce((sum, day) => sum + day.breaks, 0);
-    const avgScore = weeklyData.reduce((sum, day) => sum + day.score, 0) / weeklyData.length;
-    
-    const report = `
+      const data = await this.getAllData();
+      const { weeklyData, achievements, score, streak } = data;
+      
+      // Calculate summary statistics
+      const totalScreenTime = weeklyData.reduce((sum, day) => sum + parseFloat(day.screenTime), 0);
+      const totalBreaks = weeklyData.reduce((sum, day) => sum + day.breaks, 0);
+      const avgScore = weeklyData.reduce((sum, day) => sum + day.score, 0) / weeklyData.length;
+      
+      const report = `
 ═══════════════════════════════════════════════════
           POSTURE GUARDIAN - WEEKLY REPORT
 ═══════════════════════════════════════════════════
@@ -60,106 +84,108 @@ Health Bonus:       ${score.health_bonus}
 ═══════════════════════════════════════════════════
 Generated on: ${new Date().toLocaleString()}
 ═══════════════════════════════════════════════════
-    `;
-    
-    // יצירת קובץ להורדה
-    const blob = new Blob([report], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const filename = `wellness-report-${new Date().toISOString().split('T')[0]}.txt`;
-    
+      `;
+      
+      // Create file for download
+      const blob = new Blob([report], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const filename = `wellness-report-${new Date().toISOString().split('T')[0]}.txt`;
+      
       // Chrome extension download API
-      chrome.downloads.download({
-        url: url,
-        filename: filename,
-        saveAs: true
-      });
+      if (chrome && chrome.downloads) {
+        chrome.downloads.download({
+          url: url,
+          filename: filename,
+          saveAs: true
+        });
+      }
       
       console.log('✅ Report exported:', filename);
-      return report;
+      return { success: true, format: 'TXT', data: report };
     } catch (error) {
       console.error('❌ Export failed:', error);
-      alert('Export failed. Please try again.');
-      throw error;
+      return { success: false, error: error.message };
     }
   },
 
   /**
-   * יוצא נתונים גולמיים כ-JSON
+   * Export as JSON format
    */
-  async exportRawData() {
+  async exportAsJSON() {
     try {
-      const weeklyData = await StorageManager.getWeeklyData();
-      const achievements = await Achievements.getAchievementsWithStatus();
-      const stats = await Achievements.getUserStats();
-    
-    const data = {
-      export_date: new Date().toISOString(),
-      weekly_data: weeklyData,
-      achievements: achievements,
-      current_stats: stats,
-      version: '1.0.0'
-    };
-    
-    const blob = new Blob([JSON.stringify(data, null, 2)], { 
-      type: 'application/json' 
-    });
-    const url = URL.createObjectURL(blob);
-    const filename = `posture-data-${new Date().toISOString().split('T')[0]}.json`;
-    
-      chrome.downloads.download({
-        url: url,
-        filename: filename,
-        saveAs: true
+      const data = await this.getAllData();
+      
+      const exportData = {
+        export_date: new Date().toISOString(),
+        weekly_data: data.weeklyData,
+        achievements: data.achievements,
+        current_stats: data.stats,
+        version: '1.0.0'
+      };
+      
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { 
+        type: 'application/json' 
       });
+      const url = URL.createObjectURL(blob);
+      const filename = `posture-data-${new Date().toISOString().split('T')[0]}.json`;
+      
+      if (chrome && chrome.downloads) {
+        chrome.downloads.download({
+          url: url,
+          filename: filename,
+          saveAs: true
+        });
+      }
       
       console.log('✅ Raw data exported:', filename);
-      return data;
+      return { success: true, format: 'JSON', data: exportData };
     } catch (error) {
       console.error('❌ Raw data export failed:', error);
-      alert('Export failed. Please try again.');
-      throw error;
+      return { success: false, error: error.message };
     }
   },
 
   /**
-   * יוצא נתונים כ-CSV (לאקסל)
+   * Export as CSV format
    */
-  async exportCSV() {
+  async exportAsCSV() {
     try {
-      const weeklyData = await StorageManager.getWeeklyData();
-    
-    const headers = 'Date,Day,Screen Time (h),Breaks,Health Score,Clicks,Keystrokes\n';
-    const rows = weeklyData.map(day => 
-      `${day.date},${day.day},${day.screenTime},${day.breaks},${day.score},${day.clicks},${day.keystrokes}`
-    ).join('\n');
-    
-    const csv = headers + rows;
-    
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const filename = `posture-data-${new Date().toISOString().split('T')[0]}.csv`;
-    
-      chrome.downloads.download({
-        url: url,
-        filename: filename,
-        saveAs: true
-      });
+      const data = await this.getAllData();
+      const { weeklyData } = data;
+      
+      const headers = 'Date,Day,Screen Time (h),Breaks,Health Score,Clicks,Keystrokes\n';
+      const rows = weeklyData.map(day => 
+        `${day.date},${day.day},${day.screenTime},${day.breaks},${day.score},${day.clicks},${day.keystrokes}`
+      ).join('\n');
+      
+      const csv = headers + rows;
+      
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const filename = `posture-data-${new Date().toISOString().split('T')[0]}.csv`;
+      
+      if (chrome && chrome.downloads) {
+        chrome.downloads.download({
+          url: url,
+          filename: filename,
+          saveAs: true
+        });
+      }
       
       console.log('✅ CSV exported:', filename);
-      return csv;
+      return { success: true, format: 'CSV', data: csv };
     } catch (error) {
       console.error('❌ CSV export failed:', error);
-      alert('Export failed. Please try again.');
-      throw error;
+      return { success: false, error: error.message };
     }
   },
 
   /**
-   * שיתוף בוואטסאפ (קישור)
+   * Share to WhatsApp
    */
   async shareToWhatsApp() {
-    const streak = await StorageManager.calculateStreak();
-    const stats = await Achievements.getUserStats();
+    const data = await this.getAllData();
+    const { streak, stats } = data;
     
     const message = `
 🏆 My Posture Guardian Stats:
@@ -171,18 +197,26 @@ Join me in staying healthy! 💪
     `.trim();
     
     const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
-    window.open(url, '_blank');
+    if (typeof window !== 'undefined') {
+      window.open(url, '_blank');
+    }
   },
 
   /**
-   * העתקה ללוח
+   * Copy to clipboard
    */
   async copyToClipboard() {
-    const report = await this.exportWeeklyReport();
+    const result = await this.exportAsTXT();
     
-    navigator.clipboard.writeText(report).then(() => {
+    if (result.success && navigator.clipboard) {
+      await navigator.clipboard.writeText(result.data);
       console.log('✅ Report copied to clipboard');
-      alert('📋 Report copied to clipboard!');
-    });
+      if (typeof alert !== 'undefined') {
+        alert('📋 Report copied to clipboard!');
+      }
+    }
   }
 };
+
+// Export alias for backward compatibility
+export const ExportUtils = ExportManager;

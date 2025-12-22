@@ -42,11 +42,13 @@ export const StorageManager = {
     const screenHours = stats.screenTime / 3600;
     if (screenHours > 8) score -= 30;
     else if (screenHours > 6) score -= 15;
-    else if (screenHours > 4) score -= 5;
+    else if (screenHours > 4) score -= 10; // יותר חמור מ-5
 
-    // בונוס על הפסקות
+    // בונוס על הפסקות (מוגבל)
     const breaks = stats.breaks || 0;
-    score += Math.min(breaks * 5, 20); // עד 20 נקודות
+    if (breaks > 0) {
+      score += Math.min(breaks * 2, 5); // עד 5 נקודות במקום 10
+    }
 
     // קנס על פעילות מופרזת
     if (stats.clicks > 10000) score -= 10;
