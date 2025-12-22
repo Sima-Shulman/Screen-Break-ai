@@ -37,22 +37,27 @@
 
 ---
 
-## 🏗️ Architecture
+## 🏗️ Project Structure
 
 ```
 Screen-Break-ai/
-├── extension/           # Chrome Extension (React)
-│   │── background/  # Service worker
-│   │── content/     # Activity tracker
-│   │── popup/       # React UI
-│   │── utils/       # Storage, Gamification, Export
-│   └── manifest.json
-│
-├── backend/             # Node.js + Express
-│   └── server.js    # Gemini AI integration
-│
-├── tests/               # Jest tests
-└── docker-compose.yml   # Docker setup
+├── docker-compose.yml
+├── Jenkinsfile
+├── jenkins/
+│   └── Dockerfile
+└── Screen-Break-ai/
+    ├── backend/
+    │   ├── server/
+    │   ├── __tests__/
+    │   └── package.json
+    ├── extension/
+    │   ├── background/
+    │   ├── content/
+    │   ├── popup/
+    │   ├── utils/
+    │   ├── tests/
+    │   └── manifest.json
+    └── tests/
 ```
 
 ---
@@ -62,20 +67,20 @@ Screen-Break-ai/
 ### Prerequisites
 - Node.js 18+
 - Chrome browser
-- Gemini API key ([Get one here](https://makersuite.google.com/app/apikey))
+- Gemini API key ([Get one here](https://aistudio.google.com/app/apikey))
 
 ### 1️⃣ Clone & Install
 
 ```bash
 git clone https://github.com/Sima-Shulman/Screen-Break-ai.git
-cd posture-guardian
+cd Screen-Break-ai/Screen-Break-ai
 
 # Install backend dependencies
 cd backend
 npm install
 
-# Install extension dependencies
-cd ../extension
+# Install popup dependencies
+cd ../extension/popup
 npm install
 ```
 
@@ -88,6 +93,12 @@ GEMINI_API_KEY=your_api_key_here
 PORT=3001
 ```
 
+Create `.env` file in `extension/`:
+
+```env
+GEMINI_API_KEY=your_api_key_here
+```
+
 ### 3️⃣ Run with Docker (Recommended)
 
 ```bash
@@ -98,12 +109,16 @@ Or run manually:
 
 ```bash
 # Terminal 1 - Backend
-cd backend
+cd Screen-Break-ai/backend
 npm start
 
-# Terminal 2 - Extension (dev mode)
-cd extension
+# Terminal 2 - Extension popup (dev mode)
+cd Screen-Break-ai/extension/popup
 npm run dev
+
+# Terminal 3 - Build extension
+cd Screen-Break-ai/extension
+npm run build
 ```
 
 ### 4️⃣ Load Extension in Chrome
@@ -111,7 +126,7 @@ npm run dev
 1. Open Chrome → `chrome://extensions/`
 2. Enable "Developer mode"
 3. Click "Load unpacked"
-4. Select the `extension/` folder
+4. Select the `Screen-Break-ai/extension/` folder
 5. Pin the extension to toolbar
 
 ---
@@ -119,14 +134,17 @@ npm run dev
 ## 🧪 Testing
 
 ```bash
-# Run all tests
+# Backend tests
+cd Screen-Break-ai/backend
 npm test
 
-# Run specific test
-npm test gamification
+# Extension tests
+cd Screen-Break-ai/extension
+npm test
 
-# Coverage report
-npm test -- --coverage
+# Popup tests
+cd Screen-Break-ai/extension/popup
+npm test
 ```
 
 ---
@@ -161,7 +179,6 @@ Dashboard shows:
 - Daily/weekly screen time trends
 - Break compliance rate
 - Health score (0-100)
-- Activity distribution pie chart
 
 ### Export Reports
 Generate reports in multiple formats:
@@ -171,18 +188,7 @@ Generate reports in multiple formats:
 
 ---
 
-## 🎨 Screenshots
 
-### Dashboard
-![Dashboard](screenshots/dashboard.png)
-
-### Break Notification
-![Break](screenshots/break.png)
-
-### Settings
-![Settings](screenshots/settings.png)
-
----
 
 ## 🛠️ Tech Stack
 
@@ -194,19 +200,20 @@ Generate reports in multiple formats:
 | Backend | Node.js, Express |
 | AI | Google Gemini 2.5 |
 | Storage | Chrome Storage API |
-| Testing | Jest |(?????????????????????????????????????????????)
-| DevOps | Docker, Docker Compose |
+| Testing | Jest, Vitest |
+| DevOps | Docker, Docker Compose, Jenkins |
 
 ---
 
 ## 📈 Roadmap
 
-- [ ] Mobile app (React)
-- [ ] Integration with fitness trackers
-- [ ] Team leaderboards (shared storage)
-- [ ] Voice-guided exercises
-- [ ] Calendar integration
-- [ ] ML-based posture detection (future)
+- [x] AI-powered break recommendations
+- [x] Activity tracking (clicks, typing, scrolling)
+- [x] Gamification system with achievements
+- [x] Analytics dashboard with charts
+- [x] Export reports (TXT, CSV, JSON)
+- [x] Docker deployment
+- [x] Comprehensive testing suite
 
 ---
 
@@ -227,9 +234,9 @@ Contributions are welcome! Please:
 
 ---
 
-## 👤 Author
+## 👥 Authors
 
-**Your Name**
+**Sima Shulman & Bracha Rosenfeld**
 - GitHub: [@Sima-Shulman](https://github.com/Sima-Shulman)
 - GitHub: [@Bracha-Rosenfeld](https://github.com/Bracha-Rosenfeld)
 ---
