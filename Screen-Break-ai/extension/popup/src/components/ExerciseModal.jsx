@@ -41,7 +41,7 @@ function ExerciseModal({ exercise, onClose, onComplete }) {
   const handleComplete = () => {
     setIsCompleted(true);
     if (onComplete) {
-      onComplete();
+      onComplete?.();
     }
   };
 
@@ -49,9 +49,13 @@ function ExerciseModal({ exercise, onClose, onComplete }) {
     setIsPaused(!isPaused);
   };
 
-  const handleSkip = () => {
-    handleComplete();
-  };
+  // const handleSkip = () => {
+  //   handleComplete();
+  // };
+const handleSkip = () => {
+  if (onSkip) onSkip();
+  onClose();
+};
 
   if (!exercise) return null;
 

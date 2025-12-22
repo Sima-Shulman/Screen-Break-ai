@@ -11,6 +11,15 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         return true;
     }
     
+    if (message.type === 'EXERCISE_COMPLETED') {
+        // Only increment break count and check achievements when exercise is actually completed
+        StorageManager.incrementBreakCount().then(async () => {
+            await Achievements.checkUnlocks();
+            sendResponse({ status: 'exercise completed, stats updated' });
+        });
+        return true;
+    }
+    
     if (message.type === 'UPDATE_INTERVALS') {
         // Update break intervals - alarms will use new values on next check
         sendResponse({ status: 'intervals updated' });
@@ -155,8 +164,7 @@ chrome.alarms.onAlarm.addListener(async alarm => {
         sendNotification(defaultTitle, defaultMessage, defaultExercise);
     }
 
-    await StorageManager.incrementBreakCount();
-    await Achievements.checkUnlocks();
+    // Break count and achievements will be updated only when user completes the exercise
 
     await new Promise(resolve => chrome.storage.local.set({ breaksLast }, resolve));
 });
