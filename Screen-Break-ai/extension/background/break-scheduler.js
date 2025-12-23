@@ -66,8 +66,29 @@ chrome.runtime.onInstalled.addListener(() => {
     chrome.alarms.create("saveStats", { periodInMinutes: 5 });
     chrome.alarms.create("resetStats", { periodInMinutes: 24 * 60 });
     chrome.alarms.create("checkAchievements", { periodInMinutes: 5 });
+    chrome.alarms.create("trackScreenTime", { periodInMinutes: 0.083 });
 });
 chrome.alarms.onAlarm.addListener(async alarm => {
+
+    if (alarm.name === "trackScreenTime") {
+        try {
+            const result = await new Promise(resolve => 
+                chrome.storage.local.get({ total_activity: {} }, resolve)
+            );
+            const activity = result.total_activity;
+            await new Promise(resolve => {
+                chrome.storage.local.set({
+                    total_activity: {
+                        ...activity,
+                        screenTime: (activity.screenTime || 0) + 5
+                    }
+                }, resolve);
+            });
+        } catch (error) {
+            console.error('Screen time tracking error:', error);
+        }
+        return;
+    }
 
     if (alarm.name === "saveStats") {
         await StorageManager.saveDailyStats();
