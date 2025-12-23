@@ -10,9 +10,13 @@ function App() {
   const [currentView, setCurrentView] = useState('dashboard'); // 'dashboard', 'settings'
   const [showExercise, setShowExercise] = useState(false);
   const [currentExercise, setCurrentExercise] = useState(null);
+  const [isInTab, setIsInTab] = useState(false);
 
   // Check for pending exercise on component mount
   useEffect(() => {
+    // Check if running in tab
+    setIsInTab(window.location.pathname.includes('tab.html'));
+    
     chrome.storage.local.get(['pendingExercise'], (result) => {
       if (result.pendingExercise) {
         // Check if exercise is recent (within 5 minutes)
@@ -75,6 +79,14 @@ function App() {
         >
           ⚙️ Settings
         </button>
+        {!isInTab && (
+          <button
+            onClick={() => chrome.tabs.create({ url: chrome.runtime.getURL('tab.html') })}
+            className="px-4 py-2 rounded-lg bg-slate-800 text-slate-400 hover:bg-slate-700"
+          >
+            🔗 Open in Tab
+          </button>
+        )}
       </div>
 
       {/* Views */}
