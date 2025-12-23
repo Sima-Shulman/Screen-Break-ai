@@ -127,11 +127,11 @@ function Settings() {
           <h2 className="text-lg font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Break Intervals</h2>
           
           <div className="space-y-4">
-            <div className="bg-slate-900 p-4 rounded-xl">
+            <div className="p-4 rounded-xl" style={{ backgroundColor: 'var(--bg-secondary)' }}>
               <label className="flex items-center justify-between">
                 <div>
-                  <span className="text-white font-medium">👁️ Eye Break</span>
-                  <p className="text-slate-400 text-sm">20-20-20 rule reminder</p>
+                  <span className="font-medium" style={{ color: 'var(--text-primary)' }}>👁️ Eye Break</span>
+                  <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>20-20-20 rule reminder</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <input
@@ -143,18 +143,19 @@ function Settings() {
                       const value = Math.max(5, Math.min(120, +e.target.value));
                       setIntervals({...intervals, eye: value});
                     }}
-                    className="w-20 bg-slate-800 text-white px-3 py-2 rounded-lg text-center font-bold"
+                    className="w-20 px-3 py-2 rounded-lg text-center font-bold"
+                    style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}
                   />
-                  <span className="text-slate-400">min</span>
+                  <span style={{ color: 'var(--text-secondary)' }}>min</span>
                 </div>
               </label>
             </div>
 
-            <div className="bg-slate-900 p-4 rounded-xl">
+            <div className="p-4 rounded-xl" style={{ backgroundColor: 'var(--bg-secondary)' }}>
               <label className="flex items-center justify-between">
                 <div>
-                  <span className="text-white font-medium">💪 Stretch Break</span>
-                  <p className="text-slate-400 text-sm">Full body movement</p>
+                  <span className="font-medium" style={{ color: 'var(--text-primary)' }}>💪 Stretch Break</span>
+                  <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Full body movement</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <input
@@ -166,9 +167,10 @@ function Settings() {
                       const value = Math.max(15, Math.min(240, +e.target.value));
                       setIntervals({...intervals, stretch: value});
                     }}
-                    className="w-20 bg-slate-800 text-white px-3 py-2 rounded-lg text-center font-bold"
+                    className="w-20 px-3 py-2 rounded-lg text-center font-bold"
+                    style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}
                   />
-                  <span className="text-slate-400">min</span>
+                  <span style={{ color: 'var(--text-secondary)' }}>min</span>
                 </div>
               </label>
             </div>
@@ -177,13 +179,13 @@ function Settings() {
 
         {/* Notifications */}
         <div className="mb-6">
-          <h2 className="text-lg font-bold text-white mb-4">Notifications</h2>
+          <h2 className="text-lg font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Notifications</h2>
           
           <div className="space-y-3">
-            <label className="flex items-center justify-between bg-slate-900 p-4 rounded-xl cursor-pointer">
+            <label className="flex items-center justify-between p-4 rounded-xl cursor-pointer" style={{ backgroundColor: 'var(--bg-secondary)' }}>
               <div>
-                <span className="text-white font-medium">Enable Notifications</span>
-                <p className="text-slate-400 text-sm">Show break reminders</p>
+                <span className="font-medium" style={{ color: 'var(--text-primary)' }}>Enable Notifications</span>
+                <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Show break reminders</p>
               </div>
               <input
                 type="checkbox"
@@ -208,10 +210,10 @@ function Settings() {
               />
             </label>
 
-            <label className="flex items-center justify-between bg-slate-900 p-4 rounded-xl cursor-pointer">
+            <label className="flex items-center justify-between p-4 rounded-xl cursor-pointer" style={{ backgroundColor: 'var(--bg-secondary)' }}>
               <div>
-                <span className="text-white font-medium">Sound Effects</span>
-                <p className="text-slate-400 text-sm">Play sound with notifications</p>
+                <span className="font-medium" style={{ color: 'var(--text-primary)' }}>Sound Effects</span>
+                <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Play sound with notifications</p>
               </div>
               <input
                 type="checkbox"
@@ -234,13 +236,14 @@ function Settings() {
               />
             </label>
 
-            <div className="bg-slate-900 p-4 rounded-xl">
+            <div className="p-4 rounded-xl" style={{ backgroundColor: 'var(--bg-secondary)' }}>
               <label className="block">
-                <span className="text-white font-medium block mb-2">Priority Level</span>
+                <span className="font-medium block mb-2" style={{ color: 'var(--text-primary)' }}>Priority Level</span>
                 <select
                   value={notifications.priority}
                   onChange={(e) => setNotifications({...notifications, priority: e.target.value})}
-                  className="w-full bg-slate-800 text-white px-4 py-2 rounded-lg"
+                  className="w-full px-4 py-2 rounded-lg"
+                  style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}
                 >
                   <option value="low">Low</option>
                   <option value="medium">Medium</option>
@@ -253,11 +256,11 @@ function Settings() {
 
         {/* Theme */}
         <div className="mb-6">
-          <h2 className="text-lg font-bold text-white mb-4">Appearance</h2>
+          <h2 className="text-lg font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Appearance</h2>
           
-          <div className="bg-slate-900 p-4 rounded-xl">
+          <div className="p-4 rounded-xl" style={{ backgroundColor: 'var(--bg-secondary)' }}>
             <label className="block">
-              <span className="text-white font-medium block mb-2">Theme</span>
+              <span className="font-medium block mb-2" style={{ color: 'var(--text-primary)' }}>Theme</span>
               <select
                 value={theme}
                 onChange={(e) => {
@@ -268,7 +271,8 @@ function Settings() {
                   // Auto-save theme change
                   chrome.storage.local.set({ theme: newTheme });
                 }}
-                className="w-full bg-slate-800 text-white px-4 py-2 rounded-lg"
+                className="w-full px-4 py-2 rounded-lg"
+                style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}
               >
                 <option value="dark">🌙 Dark (Default)</option>
                 <option value="light">☀️ Light</option>
@@ -280,7 +284,7 @@ function Settings() {
 
         {/* Export & Share */}
         <div className="mb-6">
-          <h2 className="text-lg font-bold text-white mb-4">Data & Sharing</h2>
+          <h2 className="text-lg font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Data & Sharing</h2>
           
           <div className="grid grid-cols-2 gap-3">
             <button

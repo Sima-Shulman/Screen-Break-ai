@@ -81,7 +81,7 @@ describe('EnhancedDashboard', () => {
     // Live Stats Footer
     expect(await screen.findByText('1234')).toBeInTheDocument();
     expect(await screen.findByText('5678')).toBeInTheDocument();
-    expect(await screen.findByText(/9000px/)).toBeInTheDocument();
+    expect(await screen.findByText(/9\.0m/)).toBeInTheDocument();
 
     // Achievements
     // Check for the name of an unlocked achievement

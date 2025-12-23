@@ -112,7 +112,7 @@ export const StorageManager = {
             score: data.health_score || 0,
             clicks: data.clicks || 0,
             keystrokes: data.keystrokes || 0,
-            scrollDistance: data.scrollDistance || 0
+            scrollDistance: (data.scrollDistance / 3779).toFixed(1)
           }));
         resolve(last7Days);
       });
