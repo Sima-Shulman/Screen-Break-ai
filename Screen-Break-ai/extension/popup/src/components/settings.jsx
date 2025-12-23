@@ -24,10 +24,26 @@ function Settings() {
       (result) => {
         if (result.intervals) setIntervals(result.intervals);
         if (result.notifications) setNotifications(result.notifications);
-        if (result.theme) setTheme(result.theme);
+        if (result.theme) {
+          setTheme(result.theme);
+          applyTheme(result.theme);
+        }
       }
     );
-  }, []);
+  }, []); // Remove theme dependency
+
+  // Separate effect for system theme changes
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleThemeChange = () => {
+      if (theme === 'auto') {
+        applyTheme('auto');
+      }
+    };
+    
+    mediaQuery.addEventListener('change', handleThemeChange);
+    return () => mediaQuery.removeEventListener('change', handleThemeChange);
+  }, [theme]);
 
   const handleSave = () => {
     chrome.storage.local.set({
@@ -38,16 +54,39 @@ function Settings() {
       setIsSaved(true);
       setTimeout(() => setIsSaved(false), 2000);
       
-      // עדכן את ה-alarms with error handling
+      // Update background script
       try {
         chrome.runtime.sendMessage({
           type: 'UPDATE_INTERVALS',
           data: intervals
         });
+        
+        // Apply theme immediately
+        applyTheme(theme);
+        
+        // Update notification permissions if needed
+        if (notifications.enabled) {
+          chrome.notifications.getPermissionLevel((level) => {
+            if (level !== 'granted') {
+              chrome.notifications.requestPermission();
+            }
+          });
+        }
       } catch (error) {
         console.log('Background script not available:', error);
       }
     });
+  };
+
+  const applyTheme = (selectedTheme) => {
+    let actualTheme = selectedTheme;
+    
+    if (selectedTheme === 'auto') {
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      actualTheme = prefersDark ? 'dark' : 'light';
+    }
+    
+    document.documentElement.setAttribute('data-theme', actualTheme);
   };
 
   const handleReset = () => {
@@ -75,17 +114,17 @@ function Settings() {
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto p-6 bg-gradient-to-br from-slate-900 to-slate-800 min-h-screen">
-      <div className="bg-slate-800 rounded-2xl shadow-xl p-6">
+    <div className="w-full max-w-2xl mx-auto p-6" style={{ background: 'linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%)', minHeight: '100vh' }}>
+      <div className="rounded-2xl shadow-xl p-6" style={{ backgroundColor: 'var(--bg-card)' }}>
         {/* Header */}
-        <div className="flex items-center gap-3 mb-6 pb-4 border-b border-slate-700">
+        <div className="flex items-center gap-3 mb-6 pb-4" style={{ borderBottom: '1px solid var(--border-color)' }}>
           <SettingsIcon className="text-blue-400" size={28} />
-          <h1 className="text-2xl font-bold text-white">Settings</h1>
+          <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Settings</h1>
         </div>
 
         {/* Break Intervals */}
         <div className="mb-6">
-          <h2 className="text-lg font-bold text-white mb-4">Break Intervals</h2>
+          <h2 className="text-lg font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Break Intervals</h2>
           
           <div className="space-y-4">
             <div className="bg-slate-900 p-4 rounded-xl">
@@ -149,7 +188,22 @@ function Settings() {
               <input
                 type="checkbox"
                 checked={notifications.enabled}
-                onChange={(e) => setNotifications({...notifications, enabled: e.target.checked})}
+                onChange={(e) => {
+                  const enabled = e.target.checked;
+                  setNotifications({...notifications, enabled});
+                  
+                  if (enabled) {
+                    chrome.notifications.getPermissionLevel((level) => {
+                      if (level !== 'granted') {
+                        chrome.notifications.requestPermission((permission) => {
+                          if (permission !== 'granted') {
+                            setNotifications({...notifications, enabled: false});
+                          }
+                        });
+                      }
+                    });
+                  }
+                }}
                 className="w-6 h-6 accent-blue-500"
               />
             </label>
@@ -162,7 +216,20 @@ function Settings() {
               <input
                 type="checkbox"
                 checked={notifications.sound}
-                onChange={(e) => setNotifications({...notifications, sound: e.target.checked})}
+                onChange={(e) => {
+                  setNotifications({...notifications, sound: e.target.checked});
+                  
+                  // Test sound when enabled
+                  if (e.target.checked) {
+                    try {
+                      const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT');
+                      audio.volume = 0.3;
+                      audio.play().catch(() => {});
+                    } catch (error) {
+                      console.log('Sound test failed:', error);
+                    }
+                  }
+                }}
                 className="w-6 h-6 accent-blue-500"
               />
             </label>
@@ -193,7 +260,14 @@ function Settings() {
               <span className="text-white font-medium block mb-2">Theme</span>
               <select
                 value={theme}
-                onChange={(e) => setTheme(e.target.value)}
+                onChange={(e) => {
+                  const newTheme = e.target.value;
+                  setTheme(newTheme);
+                  applyTheme(newTheme);
+                  
+                  // Auto-save theme change
+                  chrome.storage.local.set({ theme: newTheme });
+                }}
                 className="w-full bg-slate-800 text-white px-4 py-2 rounded-lg"
               >
                 <option value="dark">🌙 Dark (Default)</option>
