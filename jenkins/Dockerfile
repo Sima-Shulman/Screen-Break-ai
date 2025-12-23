@@ -43,8 +43,15 @@ ENV REQUESTS_CA_BUNDLE=/etc/ca-bundle.crt
 ENV SSL_CERT_FILE=/etc/ca-bundle.crt
 # # --- END NETFREE CERT INTSALL ---
 ADD https://netfree.link/cacert/isp/netfree-anywhere/ca.crt /home/netfree-ca.crt
+ADD https://netfree.link/cacert/isp/amitnet/ca.crt /home/netfree-ca2.crt
+
 RUN keytool -importcert -trustcacerts -noprompt\
  -alias netfree-ca -file /home/netfree-ca.crt\
+ -keystore /opt/java/openjdk/lib/security/cacerts\
+ -storepass changeit
+
+ RUN keytool -importcert -trustcacerts -noprompt\
+ -alias netfree-ca2 -file /home/netfree-ca2.crt\
  -keystore /opt/java/openjdk/lib/security/cacerts\
  -storepass changeit
 
