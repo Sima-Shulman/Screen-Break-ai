@@ -1,6 +1,15 @@
 import { StorageManager } from '../utils/storage-manager.js';
 import { Achievements } from '../utils/gamification.js';
 
+function scheduleNextMidnightReset() {
+    const now = new Date();
+    const midnight = new Date(now);
+    midnight.setHours(24, 0, 0, 0);
+    const minutesUntilMidnight = Math.ceil((midnight - now) / (1000 * 60));
+    console.log(`Scheduling reset in ${minutesUntilMidnight} minutes (at ${midnight.toLocaleString()})`);
+    chrome.alarms.create("resetStats", { delayInMinutes: minutesUntilMidnight });
+}
+
 console.log("Background service worker running");
 
 // Keep service worker alive and handle messages
@@ -62,12 +71,15 @@ chrome.runtime.onInstalled.addListener(() => {
 
     chrome.alarms.create("checkBreaks", { periodInMinutes: 1 });
     chrome.alarms.create("saveStats", { periodInMinutes: 5 });
-    chrome.alarms.create("resetStats", { periodInMinutes: 24 * 60 });
+    scheduleNextMidnightReset();
     chrome.alarms.create("checkAchievements", { periodInMinutes: 5 });
     chrome.alarms.create("trackScreenTime", { periodInMinutes: 0.083 });
 });
-chrome.alarms.onAlarm.addListener(async alarm => {
 
+chrome.runtime.onStartup.addListener(() => {
+    scheduleNextMidnightReset();
+});
+chrome.alarms.onAlarm.addListener(async alarm => {
     if (alarm.name === "trackScreenTime") {
         try {
             const result = await new Promise(resolve => 
@@ -94,7 +106,9 @@ chrome.alarms.onAlarm.addListener(async alarm => {
     }
 
     if (alarm.name === "resetStats") {
+        console.log('Resetting stats at midnight:', new Date().toLocaleString());
         await StorageManager.resetDailyStats();
+        scheduleNextMidnightReset();
         return;
     }
 
