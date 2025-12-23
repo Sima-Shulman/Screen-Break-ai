@@ -42,12 +42,19 @@ export const StorageManager = {
     const screenHours = stats.screenTime / 3600;
     if (screenHours > 8) score -= 30;
     else if (screenHours > 6) score -= 15;
-    else if (screenHours > 4) score -= 10; // יותר חמור מ-5
+    else if (screenHours > 4) score -= 10;
 
-    // בונוס על הפסקות (מוגבל)
-    const breaks = stats.breaks || 0;
-    if (breaks > 0) {
-      score += Math.min(breaks * 2, 5); // עד 5 נקודות במקום 10
+    // חישוב הפסקות נדרשות לפי זמן מסך (כל 20 דקות)
+    const requiredBreaks = Math.floor(screenHours * 3); // 3 הפסקות לשעה
+    const actualBreaks = stats.breaks || 0;
+    const missedBreaks = Math.max(0, requiredBreaks - actualBreaks);
+
+    // קנס על הפסקות שלא נלקחו (5 נקודות לכל הפסקה)
+    score -= missedBreaks * 5;
+
+    // בונוס על הפסקות שנלקחו
+    if (actualBreaks > 0) {
+      score += Math.min(actualBreaks * 2, 10);
     }
 
     // קנס על פעילות מופרזת
@@ -55,8 +62,8 @@ export const StorageManager = {
     if (stats.keystrokes > 20000) score -= 10;
 
     // Require at least 1 break to maintain streak (score >= 70)
-    if (breaks === 0) {
-      score = Math.min(score, 0); // Cap at 69 if no breaks taken
+    if (actualBreaks === 0) {
+      score = Math.min(score, 69);
     }
 
     return Math.max(0, Math.min(100, Math.round(score)));
