@@ -171,24 +171,42 @@ chrome.alarms.onAlarm.addListener(async alarm => {
 
 
 function sendNotification(title, message, exerciseData = null) {
-    const notificationId = `break-notification-${Date.now()}`;
-    console.log("Sending notification:", title, message);
+    // Check if notifications are enabled
+    chrome.storage.local.get(['notifications'], (result) => {
+        const notificationSettings = result.notifications || { enabled: true, sound: true, priority: 'high' };
+        
+        if (!notificationSettings.enabled) {
+            console.log('Notifications disabled, skipping notification');
+            return;
+        }
+        
+        const notificationId = `break-notification-${Date.now()}`;
+        console.log('Sending notification:', title, message);
 
-    if (exerciseData) {
-        chrome.storage.local.set({
-            pendingExercise: {
-                ...exerciseData,
-                timestamp: Date.now()
-            }
+        if (exerciseData) {
+            chrome.storage.local.set({
+                pendingExercise: {
+                    ...exerciseData,
+                    timestamp: Date.now()
+                }
+            });
+        }
+
+        const priorityMap = {
+            'low': 0,
+            'medium': 1,
+            'high': 2
+        };
+
+        chrome.notifications.create(notificationId, {
+            type: "basic",
+            iconUrl: "/icon.png",
+            title: title,
+            message: message + "\n\nClick to view exercise details",
+            priority: priorityMap[notificationSettings.priority] || 2,
+            requireInteraction: notificationSettings.priority === 'high',
+            silent: !notificationSettings.sound
         });
-    }
-
-    chrome.notifications.create(notificationId, {
-        type: "basic",
-        iconUrl: "/icon.png",
-        title: title,
-        message: message + "\n\nClick to view exercise details",
-        priority: 2
     });
 }
 
