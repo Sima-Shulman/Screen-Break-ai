@@ -13,6 +13,12 @@ function App() {
 
   // Check for pending exercise on component mount
   useEffect(() => {
+    // Load and apply saved theme
+    chrome.storage.local.get(['theme'], (result) => {
+      const savedTheme = result.theme || 'dark';
+      applyTheme(savedTheme);
+    });
+    
     chrome.storage.local.get(['pendingExercise'], (result) => {
       if (result.pendingExercise) {
         // Check if exercise is recent (within 5 minutes)
@@ -27,15 +33,16 @@ function App() {
     });
   }, []);
 
-  // const handleBreakComplete = (didComplete) => {
-  //   setShowExercise(false);
-  //   // עדכן מונה הפסקות
-  //    if (!didComplete) return;
-  //   chrome.storage.local.get(['breaks_taken'], (result) => {
-  //     const count = (result.breaks_taken || 0) + 1;
-  //     chrome.storage.local.set({ breaks_taken: count });
-  //   });
-  // };
+  const applyTheme = (selectedTheme) => {
+    let actualTheme = selectedTheme;
+    
+    if (selectedTheme === 'auto') {
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      actualTheme = prefersDark ? 'dark' : 'light';
+    }
+    
+    document.documentElement.setAttribute('data-theme', actualTheme);
+  };
   const handleBreakComplete = (status) => {
     setShowExercise(false);
 

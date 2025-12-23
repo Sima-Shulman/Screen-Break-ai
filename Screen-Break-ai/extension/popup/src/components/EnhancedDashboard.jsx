@@ -141,10 +141,10 @@ const EnhancedDashboard = () => {
   //];
 
   return (
-    <div className="w-full p-4 bg-gradient-to-br from-slate-900 to-slate-800 min-h-screen overflow-y-auto">
+    <div className="w-full p-4 min-h-screen overflow-y-auto" style={{ background: 'linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%)' }}>
       <div className="mb-4 text-center">
-        <h1 className="text-2xl font-bold text-white mb-1">💪 Posture Guardian AI</h1>
-        <p className="text-slate-400 text-sm">Your intelligent wellness companion</p>
+        <h1 className="text-2xl font-bold mb-1" style={{ color: 'var(--text-primary)' }}>💪 Posture Guardian AI</h1>
+        <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Your intelligent wellness companion</p>
       </div>
 
       {/* Hero Stats */}
@@ -187,19 +187,19 @@ const EnhancedDashboard = () => {
       </div>
 
       {/* Compact Chart */}
-      <div className="bg-slate-800 rounded-xl p-4 shadow-xl mb-4">
-        <h3 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
+      <div className="rounded-xl p-4 shadow-xl mb-4" style={{ backgroundColor: 'var(--bg-card)' }}>
+        <h3 className="text-lg font-bold mb-3 flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
           <TrendingUp size={16} />
           Weekly Health Score
         </h3>
         <ResponsiveContainer width="100%" height={150}>
           <BarChart data={weeklyData || []}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#475569" />
-            <XAxis dataKey="day" stroke="#94a3b8" fontSize={12} />
-            <YAxis stroke="#94a3b8" fontSize={12} />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
+            <XAxis dataKey="day" stroke="var(--text-secondary)" fontSize={12} />
+            <YAxis stroke="var(--text-secondary)" fontSize={12} />
             <Tooltip 
-              contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '8px' }}
-              labelStyle={{ color: '#e2e8f0' }}
+              contentStyle={{ backgroundColor: 'var(--bg-card)', border: 'none', borderRadius: '8px', color: 'var(--text-primary)' }}
+              labelStyle={{ color: 'var(--text-primary)' }}
             />
             <Bar dataKey="score" fill="#10b981" radius={[4, 4, 0, 0]} />
           </BarChart>
@@ -207,8 +207,8 @@ const EnhancedDashboard = () => {
       </div>
 
       {/* Achievements */}
-      <div className="bg-slate-800 rounded-xl p-4 shadow-xl mb-4">
-        <h3 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
+      <div className="rounded-xl p-4 shadow-xl mb-4" style={{ backgroundColor: 'var(--bg-card)' }}>
+        <h3 className="text-lg font-bold mb-3 flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
           <Award size={16} />
           Achievements
         </h3>
@@ -219,14 +219,17 @@ const EnhancedDashboard = () => {
               className={`p-2 rounded-lg text-center transition-all ${
                 achievement.unlocked
                   ? 'bg-gradient-to-br from-yellow-500 to-orange-500 shadow-lg'
-                  : 'bg-slate-700 opacity-50'
+                  : 'opacity-50'
               }`}
+              style={{
+                backgroundColor: achievement.unlocked ? undefined : 'var(--bg-secondary)'
+              }}
             >
               <div className="text-2xl mb-1">{achievement.icon}</div>
-              <div className="text-white font-medium text-xs">{achievement.name}</div>
+              <div className="font-medium text-xs" style={{ color: achievement.unlocked ? '#fff' : 'var(--text-primary)' }}>{achievement.name}</div>
             </div>
           )) : (
-            <div className="col-span-4 text-center text-slate-400 py-4">
+            <div className="col-span-4 text-center py-4" style={{ color: 'var(--text-secondary)' }}>
               No achievements yet
             </div>
           )}
@@ -235,17 +238,17 @@ const EnhancedDashboard = () => {
 
       {/* Live Stats Footer */}
       <div className="grid grid-cols-3 gap-2">
-        <div className="bg-slate-800 rounded-lg p-3 text-center">
+        <div className="rounded-lg p-3 text-center" style={{ backgroundColor: 'var(--bg-card)' }}>
           <div className="text-lg font-bold text-blue-400">{stats.clicks}</div>
-          <div className="text-slate-400 text-xs">Clicks</div>
+          <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>Clicks</div>
         </div>
-        <div className="bg-slate-800 rounded-lg p-3 text-center">
+        <div className="rounded-lg p-3 text-center" style={{ backgroundColor: 'var(--bg-card)' }}>
           <div className="text-lg font-bold text-green-400">{stats.keystrokes}</div>
-          <div className="text-slate-400 text-xs">Keys</div>
+          <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>Keys</div>
         </div>
-        <div className="bg-slate-800 rounded-lg p-3 text-center">
+        <div className="rounded-lg p-3 text-center" style={{ backgroundColor: 'var(--bg-card)' }}>
           <div className="text-lg font-bold text-purple-400">{Math.floor(stats.scrollDistance)}px</div>
-          <div className="text-slate-400 text-xs">Scroll</div>
+          <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>Scroll</div>
         </div>
       </div>
     </div>
