@@ -14,6 +14,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.type === 'EXERCISE_COMPLETED') {
         // Only increment break count and check achievements when exercise is actually completed
         StorageManager.incrementBreakCount().then(async () => {
+            // Immediately save daily stats to update score and streak
+            await StorageManager.saveDailyStats();
             await Achievements.checkUnlocks();
             sendResponse({ status: 'exercise completed, stats updated' });
         });
@@ -235,7 +237,7 @@ chrome.notifications.onClicked.addListener((notificationId) => {
     chrome.notifications.clear(notificationId);
 
     chrome.tabs.create({
-        url: chrome.runtime.getURL("popup/dist/index.html"),
+        url: chrome.runtime.getURL("tab.html"),
         active: true
     });
 

@@ -71,7 +71,7 @@ function App() {
   return (
     <div className="app-container">
       {/* Navigation */}
-      <div className="flex gap-2 p-4 bg-slate-900">
+      <div className="flex justify-around gap-2 p-4 bg-slate-900">
         <button
           onClick={() => setCurrentView('dashboard')}
           className={`px-4 py-2 rounded-lg ${currentView === 'dashboard' ? 'bg-blue-500 text-white' : 'bg-slate-800 text-slate-400'
@@ -88,7 +88,7 @@ function App() {
         </button>
         {!isInTab && (
           <button
-            onClick={() => chrome.tabs.create({ url: chrome.runtime.getURL('popup/dist/index.html') })}
+            onClick={() => chrome.tabs.create({ url: chrome.runtime.getURL('tab.html') })}
             className="px-4 py-2 rounded-lg bg-slate-800 text-slate-400 hover:bg-slate-700"
           >
             🔗 Open in Tab

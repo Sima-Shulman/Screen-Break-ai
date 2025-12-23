@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area } from 'recharts';
 import { Activity, Eye, TrendingUp, Award, Clock, Target, MousePointer, Keyboard, Monitor, BarChart3 } from 'lucide-react';
 
-const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
 
 const EnhancedDashboard = () => {
   const [stats, setStats] = useState({
@@ -83,17 +82,17 @@ const EnhancedDashboard = () => {
           }));
           setAchievements(userAchievements);
         }
-        
-        // Next break countdown - use actual user intervals
-        if(data.breaksLast && data.intervals) {
-            const eyeBreakInterval = data.intervals.eye * 60 * 1000;
-            const stretchBreakInterval = data.intervals.stretch * 60 * 1000;
-            const now = Date.now();
-            
-            const nextEyeBreak = (data.breaksLast.eye + eyeBreakInterval - now) / 60000;
-            const nextStretchBreak = (data.breaksLast.stretch + stretchBreakInterval - now) / 60000;
 
-            setNextBreak(Math.floor(Math.max(0, Math.min(nextEyeBreak, nextStretchBreak))));
+        // Next break countdown - use actual user intervals
+        if (data.breaksLast && data.intervals) {
+          const eyeBreakInterval = data.intervals.eye * 60 * 1000;
+          const stretchBreakInterval = data.intervals.stretch * 60 * 1000;
+          const now = Date.now();
+
+          const nextEyeBreak = (data.breaksLast.eye + eyeBreakInterval - now) / 60000;
+          const nextStretchBreak = (data.breaksLast.stretch + stretchBreakInterval - now) / 60000;
+
+          setNextBreak(Math.floor(Math.max(0, Math.min(nextEyeBreak, nextStretchBreak))));
         }
 
       });
@@ -110,7 +109,7 @@ const EnhancedDashboard = () => {
     chrome.storage.onChanged.addListener(listener);
 
     const countdownTimer = setInterval(() => {
-        setNextBreak(prev => Math.max(0, prev - 1));
+      setNextBreak(prev => Math.max(0, prev - 1));
     }, 60000);
 
     return () => {
@@ -257,15 +256,15 @@ const EnhancedDashboard = () => {
             <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
             <XAxis dataKey="day" stroke="var(--text-secondary)" fontSize={12} />
             <YAxis stroke="var(--text-secondary)" fontSize={12} />
-            <Tooltip 
+            <Tooltip
               contentStyle={{ backgroundColor: 'var(--bg-card)', border: 'none', borderRadius: '8px', color: 'var(--text-primary)' }}
               labelStyle={{ color: 'var(--text-primary)' }}
             />
-            <Area 
-              type="monotone" 
-              dataKey="screenTimeHours" 
-              stroke="#3b82f6" 
-              fill="#3b82f6" 
+            <Area
+              type="monotone"
+              dataKey="screenTimeHours"
+              stroke="#3b82f6"
+              fill="#3b82f6"
               fillOpacity={0.3}
               name="Screen Time (hrs)"
             />
@@ -284,7 +283,7 @@ const EnhancedDashboard = () => {
             <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
             <XAxis dataKey="day" stroke="var(--text-secondary)" fontSize={12} />
             <YAxis stroke="var(--text-secondary)" fontSize={12} />
-            <Tooltip 
+            <Tooltip
               contentStyle={{ backgroundColor: 'var(--bg-card)', border: 'none', borderRadius: '8px', color: 'var(--text-primary)' }}
               labelStyle={{ color: 'var(--text-primary)' }}
             />
@@ -304,11 +303,10 @@ const EnhancedDashboard = () => {
           {achievements && achievements.length > 0 ? achievements.slice(0, 8).map((achievement, idx) => (
             <div
               key={achievement.id || idx}
-              className={`p-2 rounded-lg text-center transition-all ${
-                achievement.unlocked
+              className={`p-2 rounded-lg text-center transition-all ${achievement.unlocked
                   ? 'bg-gradient-to-br from-yellow-500 to-orange-500 shadow-lg'
                   : 'opacity-50'
-              }`}
+                }`}
               style={{
                 backgroundColor: achievement.unlocked ? undefined : 'var(--bg-secondary)'
               }}
@@ -340,34 +338,6 @@ const EnhancedDashboard = () => {
           <Activity className="mx-auto mb-2 text-purple-400" size={20} />
           <div className="text-lg font-bold text-purple-400">{formatScrollMeters(stats.scrollDistance)}</div>
           <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>Scroll Distance</div>
-        </div>
-      </div>
-
-      {/* Productivity Insights */}
-      <div className="rounded-xl p-4 shadow-xl mb-4" style={{ backgroundColor: 'var(--bg-card)' }}>
-        <h3 className="text-lg font-bold mb-3 flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
-          <Eye size={16} />
-          Productivity Insights
-        </h3>
-        <div className="grid grid-cols-2 gap-4">
-          <div className="text-center">
-            <div className="text-2xl font-bold" style={{ color: stats.clicks > 0 ? '#3b82f6' : 'var(--text-secondary)' }}>
-              {stats.clicks > 0 ? Math.round(stats.keystrokes / stats.clicks * 10) / 10 : 0}
-            </div>
-            <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>Keys per Click</div>
-            <div className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>
-              {stats.keystrokes / stats.clicks > 5 ? 'Typing Heavy' : 'Click Heavy'}
-            </div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold" style={{ color: todayScreenTime > 0 ? '#10b981' : 'var(--text-secondary)' }}>
-              {todayScreenTime > 0 ? Math.round((stats.clicks + stats.keystrokes) / todayScreenTime) : 0}
-            </div>
-            <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>Actions/Hour</div>
-            <div className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>
-              Activity Rate
-            </div>
-          </div>
         </div>
       </div>
     </div>
