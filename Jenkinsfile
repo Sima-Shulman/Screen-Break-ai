@@ -1,113 +1,3 @@
-
-// pipeline {
-//     agent any
-
-//     stages {
-//         stage('Install Backend Dependencies') {
-//             steps {
-//                 dir('Screen-Break-ai/backend') {
-//                     script {
-//                         echo 'Installing backend dependencies...'
-//                         sh 'npm install'
-//                     }
-//                 }
-//             }
-//         }
-
-//         stage('Test Backend') {
-//             steps {
-//                 dir('Screen-Break-ai/backend') {
-//                     script {
-//                         echo 'Testing backend...'
-//                         sh 'npm test'
-//                     }
-//                 }
-//             }
-//         }
-
-//         stage('Install Extension Dependencies') {
-//             steps {
-//                 dir('Screen-Break-ai/extension') {
-//                     script {
-//                         echo 'Installing extension dependencies...'
-//                         sh 'npm install'
-//                     }
-//                 }
-//             }
-//         }
-        
-//         stage('Install Popup Dependencies') {
-//             steps {
-//                 dir('Screen-Break-ai/extension/popup') {
-//                     script {
-//                         echo 'Installing popup dependencies...'
-//                         sh 'npm install'
-//                     }
-//                 }
-//             }
-//         }
-
-//         stage('Build Frontend') {
-//             steps {
-//                 dir('Screen-Break-ai/extension/popup') {
-//                     script {
-//                         echo 'Building frontend...'
-//                         sh 'npm run build'
-//                     }
-//                 }
-//             }
-//         }
-
-//         stage('Test Frontend') {
-//             steps {
-//                 dir('Screen-Break-ai/extension/popup') {
-//                     script {
-//                         echo 'Testing frontend...'
-//                         sh 'npm run test'
-//                     }
-//                 }
-//             }
-//         }
-
-//         stage('Lint Frontend') {
-//             steps {
-//                 dir('Screen-Break-ai/extension/popup') {
-//                     script {
-//                         echo 'Linting frontend...'
-//                         sh 'npm run lint'
-//                     }
-//                 }
-//             }
-//         }
-
-//         stage('Build Docker Images') {
-//             steps {
-//                 script {
-//                     echo 'Building Docker images...'
-//                     sh 'docker-compose build'
-//                 }
-//             }
-//         }
-
-//         stage('Deploy') {
-//             steps {
-//                 script {
-//                     echo 'Deploying application...'
-//                     // This is a placeholder for your deployment steps
-//                     // For example, you might use: sh 'docker-compose up -d'
-//                 }
-//             }
-//         }
-//     }
-    
-//     post {
-//         always {
-//             echo 'Pipeline finished.'
-//             junit 'Screen-Break-ai/backend/junit.xml'
-//             junit 'Screen-Break-ai/extension/popup/junit.xml'
-//         }
-//     }
-// }
 pipeline {
     agent any
 
@@ -138,17 +28,17 @@ pipeline {
         stage('Extension: Install & Build') {
             steps {
                 script {
-                    def extensionDirs = ['extension/background', 'extension/utils']
-                    for (dirName in extensionDirs) {
-                        dir("Screen-Break-ai/${dirName}") {
-                            if (fileExists('package.json')) {
-                                echo "Installing npm packages in ${dirName}"
-                                sh 'npm install'
-                            }
-                        }
-                    }
+                    // def extensionDirs = ['extension/background', 'extension/utils']
+                    // for (dirName in extensionDirs) {
+                    //     dir("Screen-Break-ai/${dirName}") {
+                    //         if (fileExists('package.json')) {
+                    //             echo "Installing npm packages in ${dirName}"
+                    //             sh 'npm install'
+                    //         }
+                    //     }
+                    // }
 
-                    dir('Screen-Break-ai/extension/popup') {
+                    dir('Screen-Break-ai/extension') {
                         if (fileExists('package.json')) {
                             echo "Installing npm packages in popup"
                             sh 'npm install'
@@ -176,14 +66,14 @@ pipeline {
             }
         }
 
-        stage('Verify Services') {
-            steps {
-                echo 'Verifying services are up...'
-                sh 'docker-compose ps'
-                sh 'curl -f http://localhost:3001/health || curl -f http://localhost:3001 || echo "Service check failed but continuing..."'
-                echo 'Services verification completed!'
-            }
-        }
+        // stage('Verify Services') {
+        //     steps {
+        //         echo 'Verifying services are up...'
+        //         sh 'docker-compose ps'
+        //         // sh 'curl -f http://localhost:3001/health || curl -f http://localhost:3001 || echo "Service check failed but continuing..."'
+        //         echo 'Services verification completed!'
+        //     }
+        // }
 
         stage('Docker Compose Down') {
             steps {
