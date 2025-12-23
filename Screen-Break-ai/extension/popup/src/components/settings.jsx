@@ -250,44 +250,7 @@ function Settings() {
           </button>
         </div>
 
-        {/* Debug Section */}
-        {/* <div className="mb-6">
-          <h2 className="text-lg font-bold text-white mb-4">🔧 Debug Tools</h2>
-          
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              onClick={async () => {
-                try {
-                  const result = await chrome.runtime.sendMessage({ type: 'SAVE_STATS_NOW' });
-                  alert('Stats saved! Check console.');
-                } catch (error) {
-                  alert('Background script not available');
-                }
-              }}
-              className="bg-yellow-500 hover:bg-yellow-600 text-white py-2 rounded-lg font-bold text-sm transition-all"
-            >
-              💾 Save Now
-            </button>
 
-            <button
-              onClick={async () => {
-                try {
-                  const history = await chrome.runtime.sendMessage({ type: 'GET_HISTORY' });
-                  console.log('Current History:', history);
-                  alert(`History has ${Object.keys(history).length} days`);
-                } catch (error) {
-                  chrome.storage.local.get(['history'], (result) => {
-                    const history = result.history || {};
-                    alert(`History has ${Object.keys(history).length} days`);
-                  });
-                }
-              }}
-              className="bg-purple-500 hover:bg-purple-600 text-white py-2 rounded-lg font-bold text-sm transition-all"
-            >
-              📈 Check History
-            </button>
-          </div>
-        </div> */}
 
         {/* Info */}
         <div className="mt-6 p-4 bg-blue-500/10 border border-blue-500/30 rounded-xl">

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Play, Pause, CheckCircle } from 'lucide-react';
 
-function ExerciseModal({ exercise, onClose, onComplete }) {
+function ExerciseModal({ exercise, onClose, onComplete,onSkip }) {
   if (!exercise) return null;
 
   const [currentStep, setCurrentStep] = useState(0);
