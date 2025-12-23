@@ -63,7 +63,7 @@ export const StorageManager = {
 
     // Require at least 1 break to maintain streak (score >= 70)
     if (actualBreaks === 0) {
-      score = Math.min(score, 69);
+      score = Math.min(score, 0);
     }
 
     return Math.max(0, Math.min(100, Math.round(score)));
