@@ -63,7 +63,7 @@ ${day.day} (${day.date}):
   Screen Time: ${day.screenTime}h
   Breaks:      ${day.breaks}
   Score:       ${day.score}%
-  Activity:    ${day.clicks} clicks, ${day.keystrokes} keystrokes
+  Activity:    ${day.clicks} clicks, ${day.keystrokes} keystrokes, ${day.scrollDistance}m scroll
 `).join('\n')}
 
 🏆 ACHIEVEMENTS
@@ -153,9 +153,9 @@ Generated on: ${new Date().toLocaleString()}
       const data = await this.getAllData();
       const { weeklyData } = data;
       
-      const headers = 'Date,Day,Screen Time (h),Breaks,Health Score,Clicks,Keystrokes\n';
+      const headers = 'Date,Day,Screen Time (h),Breaks,Health Score,Clicks,Keystrokes,Scroll Distance (m)\n';
       const rows = weeklyData.map(day => 
-        `${day.date},${day.day},${day.screenTime},${day.breaks},${day.score},${day.clicks},${day.keystrokes}`
+        `${day.date},${day.day},${day.screenTime},${day.breaks},${day.score},${day.clicks},${day.keystrokes},${day.scrollDistance}`
       ).join('\n');
       
       const csv = headers + rows;

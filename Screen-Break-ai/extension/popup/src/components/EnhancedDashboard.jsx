@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { Activity, Eye, TrendingUp, Award, Clock, Target } from 'lucide-react';
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area } from 'recharts';
+import { Activity, Eye, TrendingUp, Award, Clock, Target, MousePointer, Keyboard, Monitor, BarChart3 } from 'lucide-react';
 
-// const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444'];
+const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
 
 const EnhancedDashboard = () => {
   const [stats, setStats] = useState({
@@ -134,11 +134,31 @@ const EnhancedDashboard = () => {
     return '#ef4444';
   };
 
-  //const activityData = [
-  //  { name: 'Clicks', value: stats.clicks },
-    //{ name: 'Keystrokes', value: stats.keystrokes },
-    //{ name: 'Scrolls', value: stats.scrollDistance },
-  //];
+  const activityData = [
+    { name: 'Clicks', value: stats.clicks, color: '#3b82f6' },
+    { name: 'Keystrokes', value: stats.keystrokes, color: '#10b981' },
+    { name: 'Scroll (m)', value: Math.round(stats.scrollDistance / 1000), color: '#8b5cf6' }
+  ];
+
+  const formatScrollMeters = (pixels) => {
+    return `${(pixels / 3779).toFixed(1)}m`;
+  };
+
+  const screenTimeAnalysis = weeklyData.map(day => ({
+    ...day,
+    screenTimeHours: parseFloat(day.screenTime),
+    efficiency: day.breaks > 0 ? Math.min(100, (day.breaks * 20)) : 0
+  }));
+
+  const getScreenTimeStatus = (hours) => {
+    if (hours < 4) return { status: 'Excellent', color: '#10b981' };
+    if (hours < 6) return { status: 'Good', color: '#3b82f6' };
+    if (hours < 8) return { status: 'Moderate', color: '#f59e0b' };
+    return { status: 'High', color: '#ef4444' };
+  };
+
+  const todayScreenTime = stats.screenTime / 3600;
+  const screenTimeStatus = getScreenTimeStatus(todayScreenTime);
 
   return (
     <div className="w-full p-4 min-h-screen overflow-y-auto" style={{ background: 'linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%)' }}>
@@ -147,7 +167,7 @@ const EnhancedDashboard = () => {
         <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Your intelligent wellness companion</p>
       </div>
 
-      {/* Hero Stats */}
+      {/* Enhanced Hero Stats */}
       <div className="grid grid-cols-2 gap-3 mb-4">
         <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-3 shadow-xl">
           <div className="flex items-center justify-between mb-2">
@@ -155,7 +175,12 @@ const EnhancedDashboard = () => {
             <span className="text-blue-100 text-sm font-medium">TODAY</span>
           </div>
           <div className="text-xl font-bold text-white mb-1">{formatTime(stats.screenTime)}</div>
-          <div className="text-blue-100 text-xs">Screen Time</div>
+          <div className="text-blue-100 text-xs flex items-center gap-1">
+            Screen Time
+            <span className="px-2 py-1 rounded text-xs" style={{ backgroundColor: screenTimeStatus.color, color: '#fff' }}>
+              {screenTimeStatus.status}
+            </span>
+          </div>
         </div>
 
         <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-3 shadow-xl">
@@ -186,11 +211,73 @@ const EnhancedDashboard = () => {
         </div>
       </div>
 
-      {/* Compact Chart */}
+      {/* Activity Breakdown Pie Chart */}
       <div className="rounded-xl p-4 shadow-xl mb-4" style={{ backgroundColor: 'var(--bg-card)' }}>
         <h3 className="text-lg font-bold mb-3 flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
-          <TrendingUp size={16} />
-          Weekly Health Score
+          <MousePointer size={16} />
+          Today's Activity Breakdown
+        </h3>
+        <div className="flex items-center">
+          <ResponsiveContainer width="60%" height={120}>
+            <PieChart>
+              <Pie
+                data={activityData}
+                cx="50%"
+                cy="50%"
+                innerRadius={25}
+                outerRadius={50}
+                dataKey="value"
+              >
+                {activityData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.color} />
+                ))}
+              </Pie>
+              <Tooltip />
+            </PieChart>
+          </ResponsiveContainer>
+          <div className="flex-1 space-y-2">
+            {activityData.map((item, index) => (
+              <div key={index} className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded" style={{ backgroundColor: item.color }}></div>
+                <span className="text-sm" style={{ color: 'var(--text-primary)' }}>{item.name}: {item.value.toLocaleString()}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Screen Time Trend */}
+      <div className="rounded-xl p-4 shadow-xl mb-4" style={{ backgroundColor: 'var(--bg-card)' }}>
+        <h3 className="text-lg font-bold mb-3 flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
+          <Monitor size={16} />
+          Weekly Screen Time Trend
+        </h3>
+        <ResponsiveContainer width="100%" height={150}>
+          <AreaChart data={screenTimeAnalysis}>
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
+            <XAxis dataKey="day" stroke="var(--text-secondary)" fontSize={12} />
+            <YAxis stroke="var(--text-secondary)" fontSize={12} />
+            <Tooltip 
+              contentStyle={{ backgroundColor: 'var(--bg-card)', border: 'none', borderRadius: '8px', color: 'var(--text-primary)' }}
+              labelStyle={{ color: 'var(--text-primary)' }}
+            />
+            <Area 
+              type="monotone" 
+              dataKey="screenTimeHours" 
+              stroke="#3b82f6" 
+              fill="#3b82f6" 
+              fillOpacity={0.3}
+              name="Screen Time (hrs)"
+            />
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* Health Score vs Breaks Correlation */}
+      <div className="rounded-xl p-4 shadow-xl mb-4" style={{ backgroundColor: 'var(--bg-card)' }}>
+        <h3 className="text-lg font-bold mb-3 flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
+          <BarChart3 size={16} />
+          Health Score & Break Correlation
         </h3>
         <ResponsiveContainer width="100%" height={150}>
           <BarChart data={weeklyData || []}>
@@ -201,7 +288,8 @@ const EnhancedDashboard = () => {
               contentStyle={{ backgroundColor: 'var(--bg-card)', border: 'none', borderRadius: '8px', color: 'var(--text-primary)' }}
               labelStyle={{ color: 'var(--text-primary)' }}
             />
-            <Bar dataKey="score" fill="#10b981" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="score" fill="#10b981" radius={[2, 2, 0, 0]} name="Health Score" />
+            <Bar dataKey="breaks" fill="#3b82f6" radius={[2, 2, 0, 0]} name="Breaks Taken" />
           </BarChart>
         </ResponsiveContainer>
       </div>
@@ -236,19 +324,50 @@ const EnhancedDashboard = () => {
         </div>
       </div>
 
-      {/* Live Stats Footer */}
-      <div className="grid grid-cols-3 gap-2">
+      {/* Enhanced Live Stats */}
+      <div className="grid grid-cols-3 gap-2 mb-4">
         <div className="rounded-lg p-3 text-center" style={{ backgroundColor: 'var(--bg-card)' }}>
-          <div className="text-lg font-bold text-blue-400">{stats.clicks}</div>
-          <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>Clicks</div>
+          <MousePointer className="mx-auto mb-2 text-blue-400" size={20} />
+          <div className="text-lg font-bold text-blue-400">{stats.clicks.toLocaleString()}</div>
+          <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>Clicks Today</div>
         </div>
         <div className="rounded-lg p-3 text-center" style={{ backgroundColor: 'var(--bg-card)' }}>
-          <div className="text-lg font-bold text-green-400">{stats.keystrokes}</div>
-          <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>Keys</div>
+          <Keyboard className="mx-auto mb-2 text-green-400" size={20} />
+          <div className="text-lg font-bold text-green-400">{stats.keystrokes.toLocaleString()}</div>
+          <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>Keystrokes</div>
         </div>
         <div className="rounded-lg p-3 text-center" style={{ backgroundColor: 'var(--bg-card)' }}>
-          <div className="text-lg font-bold text-purple-400">{Math.floor(stats.scrollDistance)}px</div>
-          <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>Scroll</div>
+          <Activity className="mx-auto mb-2 text-purple-400" size={20} />
+          <div className="text-lg font-bold text-purple-400">{formatScrollMeters(stats.scrollDistance)}</div>
+          <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>Scroll Distance</div>
+        </div>
+      </div>
+
+      {/* Productivity Insights */}
+      <div className="rounded-xl p-4 shadow-xl mb-4" style={{ backgroundColor: 'var(--bg-card)' }}>
+        <h3 className="text-lg font-bold mb-3 flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
+          <Eye size={16} />
+          Productivity Insights
+        </h3>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="text-center">
+            <div className="text-2xl font-bold" style={{ color: stats.clicks > 0 ? '#3b82f6' : 'var(--text-secondary)' }}>
+              {stats.clicks > 0 ? Math.round(stats.keystrokes / stats.clicks * 10) / 10 : 0}
+            </div>
+            <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>Keys per Click</div>
+            <div className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>
+              {stats.keystrokes / stats.clicks > 5 ? 'Typing Heavy' : 'Click Heavy'}
+            </div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl font-bold" style={{ color: todayScreenTime > 0 ? '#10b981' : 'var(--text-secondary)' }}>
+              {todayScreenTime > 0 ? Math.round((stats.clicks + stats.keystrokes) / todayScreenTime) : 0}
+            </div>
+            <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>Actions/Hour</div>
+            <div className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>
+              Activity Rate
+            </div>
+          </div>
         </div>
       </div>
     </div>
