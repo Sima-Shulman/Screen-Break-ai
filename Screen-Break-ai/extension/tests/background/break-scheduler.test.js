@@ -172,14 +172,31 @@ describe('Background Service Worker (break-scheduler.js)', () => {
         expect(chrome.notifications.clear).toHaveBeenCalledWith(mockNotificationId);
         expect(chrome.tabs.create).toHaveBeenCalledTimes(1);
         expect(chrome.tabs.create).toHaveBeenCalledWith({
-            url: "chrome-extension://test-extension-id/popup/dist/index.html",
+            url: "chrome-extension://test-extension-id/tab.html",
             active: true
         });
     });
 
     it('should use default interval if not in storage', async () => {
+        // Remove interval from storage to test default behavior
         delete mockStorage.interval;
-        mockStorage.lastBreak = { timestamp: MOCK_TIMESTAMP - (21 * 60 * 1000), type: null };
+        // Set lastBreak to be more than 20 minutes ago (default interval)
+        mockStorage.lastBreak = { timestamp: MOCK_TIMESTAMP - (25 * 60 * 1000), type: null };
+        mockStorage.total_activity = { clicks: 0, keystrokes: 0, scrollDistance: 0, screenTime: 0 };
+        mockStorage.history = {};
+
+        // Mock chrome.storage.local.get to return the storage without interval
+        chrome.storage.local.get.mockImplementation((keys, callback) => {
+            const result = {};
+            if (Array.isArray(keys)) {
+                keys.forEach(key => {
+                    if (mockStorage.hasOwnProperty(key)) {
+                        result[key] = mockStorage[key];
+                    }
+                });
+            }
+            callback(result);
+        });
 
         mockFetch.mockResolvedValueOnce({
             ok: true,

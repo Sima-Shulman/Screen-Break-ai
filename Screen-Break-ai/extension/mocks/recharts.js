@@ -15,3 +15,5 @@ export const Legend = () => React.createElement('div', { className: 'legend' });
 export const PieChart = ({ children, data }) => React.createElement('div', { 'data-testid': 'pie-chart', 'data-chart-data': JSON.stringify(data) }, children);
 export const Pie = ({ dataKey }) => React.createElement('div', { className: 'pie', 'data-datakey': dataKey });
 export const Cell = () => React.createElement('div', { className: 'cell' });
+export const AreaChart = ({ children, data }) => React.createElement('div', { 'data-testid': 'area-chart', 'data-chart-data': JSON.stringify(data) }, children);
+export const Area = ({ dataKey }) => React.createElement('div', { className: 'area', 'data-datakey': dataKey });

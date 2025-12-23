@@ -109,9 +109,9 @@ chrome.alarms.onAlarm.addListener(async alarm => {
         chrome.storage.local.get(["lastBreak", "total_activity", "interval"], resolve)
     );
 
-    if (!lastBreak || !stats || !interval) return;
+    if (!lastBreak || !stats) return;
 
-    const intervalMs = interval * 60 * 1000;
+    const intervalMs = (interval || 20) * 60 * 1000; // Default to 20 minutes if no interval set
     
     if (now - lastBreak.timestamp < intervalMs) return;
 

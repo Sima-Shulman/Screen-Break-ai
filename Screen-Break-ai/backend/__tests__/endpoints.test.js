@@ -1,6 +1,6 @@
 import request from 'supertest';
-import { createApp } from '../server.js';
-import * as genai from '../genai.js';
+import { createApp } from '../server/server.js';
+import * as genai from '../server/genai.js';
 
 describe('POST /analyze', () => {
     let app;
@@ -27,14 +27,15 @@ describe('POST /analyze', () => {
             title: "Quick Stretch",
             message: "Stand up and stretch your arms above your head.",
             exercise: { name: "Overhead Stretch", duration: 30, steps: [] },
-            urgency: "low"
+            urgency: "low",
+            breakType: "stretch"
         };
         mockGetAIRecommendation.mockResolvedValue(mockRecommendation);
 
         const validBody = {
-            breakType: "eye",
             activity: { clicks: 100, keystrokes: 50, scrollDistance: 200, screenTime: 300 },
-            history: []
+            history: [],
+            lastBreakType: "eye"
         };
 
         const res = await request(app)
@@ -45,30 +46,14 @@ describe('POST /analyze', () => {
         expect(res.body).toEqual(mockRecommendation);
         expect(mockGetAIRecommendation).toHaveBeenCalledTimes(1);
         expect(mockGetAIRecommendation).toHaveBeenCalledWith(
-            validBody.breakType,
             validBody.activity,
-            validBody.history
+            validBody.history,
+            validBody.lastBreakType
         );
-    });
-
-    it('should return a 400 error if breakType is missing', async () => {
-        const invalidBody = {
-            activity: { clicks: 100, keystrokes: 50, scrollDistance: 200, screenTime: 300 },
-            history: []
-        };
-
-        const res = await request(app)
-            .post('/analyze')
-            .send(invalidBody)
-            .expect(400);
-
-        expect(res.body.error).toBe("Missing required fields: breakType and activity");
-        expect(mockGetAIRecommendation).not.toHaveBeenCalled();
     });
 
     it('should return a 400 error if activity is missing', async () => {
         const invalidBody = {
-            breakType: "eye",
             history: []
         };
 
@@ -77,13 +62,12 @@ describe('POST /analyze', () => {
             .send(invalidBody)
             .expect(400);
 
-        expect(res.body.error).toBe("Missing required fields: breakType and activity");
+        expect(res.body.error).toBe("Missing required field: activity");
         expect(mockGetAIRecommendation).not.toHaveBeenCalled();
     });
 
     it('should return a 400 error if activity data types are invalid', async () => {
         const invalidBody = {
-            breakType: "eye",
             activity: { clicks: "abc", keystrokes: 50, scrollDistance: 200, screenTime: 300 },
             history: []
         };
@@ -101,9 +85,9 @@ describe('POST /analyze', () => {
         mockGetAIRecommendation.mockRejectedValue(new Error("AI service unavailable"));
 
         const validBody = {
-            breakType: "eye",
             activity: { clicks: 100, keystrokes: 50, scrollDistance: 200, screenTime: 300 },
-            history: []
+            history: [],
+            lastBreakType: "stretch"
         };
 
         const res = await request(app)
