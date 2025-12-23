@@ -1,4 +1,4 @@
-import { createApp } from '../server.js';
+import { createApp } from '../server/server.js';
 import request from 'supertest';
 
 describe('createApp', () => {

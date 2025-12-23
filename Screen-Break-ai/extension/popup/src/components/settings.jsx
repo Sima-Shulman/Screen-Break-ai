@@ -3,10 +3,7 @@ import { Settings as SettingsIcon, Save, RefreshCw, Download, Share2 } from 'luc
 import { ExportUtils } from '../../../utils/export.js';
 
 function Settings() {
-  const [intervals, setIntervals] = useState({
-    eye: 20,
-    stretch: 60
-  });
+  const [interval, setInterval] = useState(20);
   
   const [notifications, setNotifications] = useState({
     enabled: true,
@@ -20,9 +17,9 @@ function Settings() {
   // Load saved settings
   useEffect(() => {
     chrome.storage.local.get(
-      ['intervals', 'notifications', 'theme'],
+      ['interval', 'notifications', 'theme'],
       (result) => {
-        if (result.intervals) setIntervals(result.intervals);
+        if (result.interval) setInterval(result.interval);
         if (result.notifications) setNotifications(result.notifications);
         if (result.theme) {
           setTheme(result.theme);
@@ -47,7 +44,7 @@ function Settings() {
 
   const handleSave = () => {
     chrome.storage.local.set({
-      intervals,
+      interval,
       notifications,
       theme
     }, () => {
@@ -58,7 +55,7 @@ function Settings() {
       try {
         chrome.runtime.sendMessage({
           type: 'UPDATE_INTERVALS',
-          data: intervals
+          data: interval
         });
         
         // Apply theme immediately
@@ -92,12 +89,12 @@ function Settings() {
   const handleReset = () => {
     if (confirm('Reset all settings to defaults?')) {
       const defaults = {
-        intervals: { eye: 20, stretch: 60 },
+        interval: 20,
         notifications: { enabled: true, sound: true, priority: 'high' },
         theme: 'dark'
       };
       
-      setIntervals(defaults.intervals);
+      setInterval(defaults.interval);
       setNotifications(defaults.notifications);
       setTheme(defaults.theme);
       
@@ -122,58 +119,32 @@ function Settings() {
           <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Settings</h1>
         </div>
 
-        {/* Break Intervals */}
+        {/* Break Interval */}
         <div className="mb-6">
-          <h2 className="text-lg font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Break Intervals</h2>
+          <h2 className="text-lg font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Break Interval</h2>
           
-          <div className="space-y-4">
-            <div className="p-4 rounded-xl" style={{ backgroundColor: 'var(--bg-secondary)' }}>
-              <label className="flex items-center justify-between">
-                <div>
-                  <span className="font-medium" style={{ color: 'var(--text-primary)' }}>👁️ Eye Break</span>
-                  <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>20-20-20 rule reminder</p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="number"
-                    min="5"
-                    max="120"
-                    value={intervals.eye}
-                    onChange={(e) => {
-                      const value = Math.max(5, Math.min(120, +e.target.value));
-                      setIntervals({...intervals, eye: value});
-                    }}
-                    className="w-20 px-3 py-2 rounded-lg text-center font-bold"
-                    style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}
-                  />
-                  <span style={{ color: 'var(--text-secondary)' }}>min</span>
-                </div>
-              </label>
-            </div>
-
-            <div className="p-4 rounded-xl" style={{ backgroundColor: 'var(--bg-secondary)' }}>
-              <label className="flex items-center justify-between">
-                <div>
-                  <span className="font-medium" style={{ color: 'var(--text-primary)' }}>💪 Stretch Break</span>
-                  <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Full body movement</p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="number"
-                    min="15"
-                    max="240"
-                    value={intervals.stretch}
-                    onChange={(e) => {
-                      const value = Math.max(15, Math.min(240, +e.target.value));
-                      setIntervals({...intervals, stretch: value});
-                    }}
-                    className="w-20 px-3 py-2 rounded-lg text-center font-bold"
-                    style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}
-                  />
-                  <span style={{ color: 'var(--text-secondary)' }}>min</span>
-                </div>
-              </label>
-            </div>
+          <div className="p-4 rounded-xl" style={{ backgroundColor: 'var(--bg-secondary)' }}>
+            <label className="flex items-center justify-between">
+              <div>
+                <span className="font-medium" style={{ color: 'var(--text-primary)' }}>⏰ Break Reminder</span>
+                <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>AI will decide between eye breaks and stretches</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  min="5"
+                  max="120"
+                  value={interval}
+                  onChange={(e) => {
+                    const value = Math.max(5, Math.min(120, +e.target.value));
+                    setInterval(value);
+                  }}
+                  className="w-20 px-3 py-2 rounded-lg text-center font-bold"
+                  style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}
+                />
+                <span style={{ color: 'var(--text-secondary)' }}>min</span>
+              </div>
+            </label>
           </div>
         </div>
 
