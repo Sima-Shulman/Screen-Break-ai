@@ -4,10 +4,10 @@ import { getAIRecommendation } from "./genai.js";
 const router = express.Router();
 
 const validateRequest = (req, res, next) => {
-    const { breakType, activity } = req.body;
+    const { activity } = req.body;
 
-    if (!breakType || !activity) {
-        return res.status(400).json({ error: "Missing required fields: breakType and activity" });
+    if (!activity) {
+        return res.status(400).json({ error: "Missing required field: activity" });
     }
 
     if (typeof activity.clicks !== 'number' ||
@@ -21,8 +21,8 @@ const validateRequest = (req, res, next) => {
 
 router.post("/analyze", validateRequest, async (req, res) => {
     try {
-        const { breakType, activity, history } = req.body;
-        const response = await getAIRecommendation(breakType, activity, history);
+        const { activity, history, lastBreakType } = req.body;
+        const response = await getAIRecommendation(activity, history, lastBreakType);
         res.json(response);
     } catch (error) {
         console.log("AI error: ", error.message);

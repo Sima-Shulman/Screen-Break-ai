@@ -143,6 +143,8 @@ const createMockChrome = () => {
                 delete mockNotifications[notificationId];
                 if (callback) callback(true);
             }),
+            getPermissionLevel: jest.fn((callback) => callback('granted')),
+            requestPermission: jest.fn((callback) => callback('granted')),
             getAll: jest.fn(() => Promise.resolve(mockNotifications)),
             onClicked: {
                 _listeners: [],

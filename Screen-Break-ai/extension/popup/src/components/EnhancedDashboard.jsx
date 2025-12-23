@@ -83,16 +83,12 @@ const EnhancedDashboard = () => {
           setAchievements(userAchievements);
         }
 
-        // Next break countdown - use actual user intervals
-        if (data.breaksLast && data.intervals) {
-          const eyeBreakInterval = data.intervals.eye * 60 * 1000;
-          const stretchBreakInterval = data.intervals.stretch * 60 * 1000;
+        // Next break countdown - use actual user interval
+        if (data.lastBreak && data.interval) {
+          const breakInterval = data.interval * 60 * 1000;
           const now = Date.now();
-
-          const nextEyeBreak = (data.breaksLast.eye + eyeBreakInterval - now) / 60000;
-          const nextStretchBreak = (data.breaksLast.stretch + stretchBreakInterval - now) / 60000;
-
-          setNextBreak(Math.floor(Math.max(0, Math.min(nextEyeBreak, nextStretchBreak))));
+          const nextBreakTime = (data.lastBreak.timestamp + breakInterval - now) / 60000;
+          setNextBreak(Math.floor(Math.max(0, nextBreakTime)));
         }
 
       });

@@ -1,4 +1,4 @@
-import { createPrompt, parseAIResponse, getAIRecommendation } from '../genai.js';
+import { createPrompt, parseAIResponse, getAIRecommendation } from '../server/genai.js';
 
 // Mock dotenv config to prevent actual API key loading issues in tests
 jest.mock('dotenv', () => ({
@@ -13,7 +13,7 @@ jest.mock('@google/genai', () => {
                 generateContent: jest.fn().mockResolvedValue({
                     candidates: [{
                         content: {
-                            parts: [{ text: '{"title": "Test Break", "message": "Test message.", "exercise": {"name": "Test", "duration": 10, "steps": []}, "urgency": "low"}' }]
+                            parts: [{ text: '{"title": "Test Break", "message": "Test message.", "exercise": {"name": "Test", "duration": 10, "steps": []}, "urgency": "low", "breakType": "eye"}' }]
                         }
                     }]
                 })
@@ -25,37 +25,38 @@ jest.mock('@google/genai', () => {
 
 describe('createPrompt', () => {
     it('should generate a prompt with all fields', () => {
-        const breakType = "eye";
         const activity = { clicks: 100, keystrokes: 50, scrollDistance: 200, screenTime: 300 };
         const history = [{ date: "2023-01-01", score: 80 }];
-        const prompt = createPrompt(breakType, activity, history);
+        const lastBreakType = "eye";
+        const prompt = createPrompt(activity, history, lastBreakType);
 
-        expect(prompt).toContain(`**Current Break Needed:** ${breakType}`);
         expect(prompt).toContain(`Mouse clicks: ${activity.clicks}`);
         expect(prompt).toContain(`Keyboard strokes: ${activity.keystrokes}`);
         expect(prompt).toContain(`Scroll distance: ${activity.scrollDistance}px`);
         expect(prompt).toContain(`Active screen time: ${Math.floor(activity.screenTime / 60)} minutes`);
         expect(prompt).toContain(JSON.stringify(history, null, 2));
         expect(prompt).toContain(`Response format (JSON only):`);
+        expect(prompt).toContain(`"breakType": "eye|stretch"`);
+        expect(prompt).toContain(`Last type pf break taken: **Last break taken:** ${lastBreakType}`);
     });
 
     it('should generate a prompt without history if not provided', () => {
-        const breakType = "stretch";
         const activity = { clicks: 0, keystrokes: 0, scrollDistance: 0, screenTime: 0 };
-        const prompt = createPrompt(breakType, activity, null);
+        const prompt = createPrompt(activity, null);
 
-        expect(prompt).toContain(`**Current Break Needed:** ${breakType}`);
         expect(prompt).toContain(`No history available`);
+        expect(prompt).toContain(`Analyze the user's activity and provide the most appropriate break recommendation`);
+        expect(prompt).toContain(`**Last break taken:** None yet`);
     });
 
     it('should generate a prompt with an empty history array', () => {
-        const breakType = "stretch";
         const activity = { clicks: 0, keystrokes: 0, scrollDistance: 0, screenTime: 0 };
         const history = [];
-        const prompt = createPrompt(breakType, activity, history);
+        const prompt = createPrompt(activity, history);
 
-        expect(prompt).toContain(`**Current Break Needed:** ${breakType}`);
         expect(prompt).toContain(JSON.stringify(history, null, 2));
+        expect(prompt).toContain(`Analyze the user's activity and provide the most appropriate break recommendation`);
+        expect(prompt).toContain(`**Last break taken:** None yet`);
     });
 });
 
@@ -94,11 +95,11 @@ describe('getAIRecommendation', () => {
     });
 
     it('should call GoogleGenerativeAI and return parsed response', async () => {
-        const breakType = "eye";
         const activity = { clicks: 100, keystrokes: 50, scrollDistance: 200, screenTime: 300 };
         const history = [];
+        const lastBreakType = "stretch";
 
-        const recommendation = await getAIRecommendation(breakType, activity, history);
+        const recommendation = await getAIRecommendation(activity, history, lastBreakType);
 
         // Verify that GoogleGenAI was called
         const { GoogleGenAI } = require('@google/genai');
@@ -107,7 +108,7 @@ describe('getAIRecommendation', () => {
         expect(genaiInstance.models.generateContent).toHaveBeenCalledTimes(1);
 
         // Verify that the prompt was created and passed
-        const expectedPrompt = createPrompt(breakType, activity, history);
+        const expectedPrompt = createPrompt(activity, history, lastBreakType);
         expect(genaiInstance.models.generateContent).toHaveBeenCalledWith({
             model: "gemini-2.5-flash",
             contents: [{ role: "user", parts: [{ text: expectedPrompt }] }]
@@ -118,14 +119,15 @@ describe('getAIRecommendation', () => {
             title: "Test Break",
             message: "Test message.",
             exercise: { name: "Test", duration: 10, steps: [] },
-            urgency: "low"
+            urgency: "low",
+            breakType: "eye"
         });
     });
 
     it('should throw an error if AI response is invalid JSON', async () => {
-        const breakType = "eye";
         const activity = { clicks: 100, keystrokes: 50, scrollDistance: 200, screenTime: 300 };
         const history = [];
+        const lastBreakType = "eye";
 
         // Override the existing mock for this test
         const { GoogleGenAI } = require('@google/genai');
@@ -138,6 +140,6 @@ describe('getAIRecommendation', () => {
             }]
         });
 
-        await expect(getAIRecommendation(breakType, activity, history)).rejects.toThrow("Invalid AI response format");
+        await expect(getAIRecommendation(activity, history, lastBreakType)).rejects.toThrow("Invalid AI response format");
     });
 });

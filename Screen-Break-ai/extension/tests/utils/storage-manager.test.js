@@ -62,7 +62,7 @@ describe('StorageManager', () => {
                     },
                 },
             }, expect.any(Function));
-            expect(savedStats.health_score).toBe(95); // Based on calculateHealthScore logic
+            expect(savedStats.health_score).toBe(36); // Based on calculateHealthScore logic
         });
 
         it('should handle existing history', async () => {
@@ -84,13 +84,13 @@ describe('StorageManager', () => {
 
     describe('calculateHealthScore', () => {
         it('should return 100 for ideal stats', () => {
-            const stats = { clicks: 100, keystrokes: 200, scrollDistance: 1000, screenTime: 3600 * 3, breaks: 5 }; // 3 hours screen time
+            const stats = { clicks: 100, keystrokes: 200, scrollDistance: 1000, screenTime: 3600 * 3, breaks: 9 }; // 3 hours screen time, 9 required breaks
             expect(StorageManager.calculateHealthScore(stats)).toBe(100);
         });
 
         it('should penalize for high screen time', () => {
-            const stats = { clicks: 100, keystrokes: 200, scrollDistance: 1000, screenTime: 3600 * 9, breaks: 0 }; // 9 hours
-            expect(StorageManager.calculateHealthScore(stats)).toBe(70); // 100 - 30
+            const stats = { clicks: 100, keystrokes: 200, scrollDistance: 1000, screenTime: 3600 * 9, breaks: 0 }; // 9 hours, no breaks
+            expect(StorageManager.calculateHealthScore(stats)).toBe(0); // 100 - 30 - 135 (27*5) = negative, clamped to 0
         });
 
         it('should bonus for breaks', () => {
@@ -100,12 +100,12 @@ describe('StorageManager', () => {
 
         it('should penalize for excessive activity', () => {
             const stats = { clicks: 15000, keystrokes: 25000, scrollDistance: 1000, screenTime: 3600 * 3, breaks: 0 };
-            expect(StorageManager.calculateHealthScore(stats)).toBe(80); // 100 - 10 - 10
+            expect(StorageManager.calculateHealthScore(stats)).toBe(0); // 100 - 10 - 10 - 45 (9*5) = negative, clamped to 0
         });
 
         it('should not go below 0 or above 100', () => {
             const badStats = { clicks: 20000, keystrokes: 40000, scrollDistance: 10000, screenTime: 3600 * 10, breaks: 0 };
-            expect(StorageManager.calculateHealthScore(badStats)).toBe(50); // 100 - 30 - 10 - 10 = 50
+            expect(StorageManager.calculateHealthScore(badStats)).toBe(0); // 100 - 30 - 10 - 10 - 150 = negative, clamped to 0
 
             const goodStats = { clicks: 0, keystrokes: 0, scrollDistance: 0, screenTime: 0, breaks: 100 };
             expect(StorageManager.calculateHealthScore(goodStats)).toBe(100);

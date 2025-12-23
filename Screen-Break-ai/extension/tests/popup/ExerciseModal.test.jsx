@@ -115,13 +115,14 @@ describe('ExerciseModal', () => {
     expect(screen.getByText('Great Job! 🎉')).toBeInTheDocument();
   });
 
-  it('should call onComplete and show success message when skipped', () => {
-    render(<ExerciseModal exercise={mockExercise} onClose={onCloseMock} onComplete={onCompleteMock} />);
+  it('should call onSkip and onClose when skipped', () => {
+    const onSkipMock = jest.fn();
+    render(<ExerciseModal exercise={mockExercise} onClose={onCloseMock} onComplete={onCompleteMock} onSkip={onSkipMock} />);
     
     fireEvent.click(screen.getByText('Skip'));
 
-    expect(onCompleteMock).toHaveBeenCalledTimes(1);
-    expect(screen.getByText('Great Job! 🎉')).toBeInTheDocument();
+    expect(onSkipMock).toHaveBeenCalledTimes(1);
+    expect(onCloseMock).toHaveBeenCalledTimes(1);
   });
 
   it('should call onClose when the close button is clicked from the success screen', () => {

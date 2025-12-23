@@ -79,9 +79,9 @@ describe('EnhancedDashboard', () => {
     expect(await screen.findByText('0m')).toBeInTheDocument(); // Next break shows as 0m
 
     // Live Stats Footer
-    expect(await screen.findByText('1234')).toBeInTheDocument();
-    expect(await screen.findByText('5678')).toBeInTheDocument();
-    expect(await screen.findByText(/9\.0m/)).toBeInTheDocument();
+    expect(await screen.findByText('1,234')).toBeInTheDocument();
+    expect(await screen.findByText('5,678')).toBeInTheDocument();
+    expect(await screen.findByText('2.4m')).toBeInTheDocument();
 
     // Achievements
     // Check for the name of an unlocked achievement
@@ -97,7 +97,7 @@ describe('EnhancedDashboard', () => {
 
     // Chart - skip chart test since ResponsiveContainer doesn't render with empty data
     // Just verify the chart section exists
-    expect(screen.getByText('Weekly Health Score')).toBeInTheDocument();
+    expect(screen.getByText('Weekly Screen Time Trend')).toBeInTheDocument();
   });
 
   it('should show loading/empty state if no data is available', async () => {

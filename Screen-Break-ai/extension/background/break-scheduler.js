@@ -53,13 +53,9 @@ chrome.runtime.onInstalled.addListener(() => {
             scrollDistance: 0,
             screenTime: 0
         },
-        pendingActivity: {},
         breaks_taken: 0,
-        breaksLast: {
-            eye: Date.now(),
-            stretch: Date.now()
-        },
-        intervals: { eye: 20, stretch: 60 },
+        lastBreak: { timestamp: Date.now(), type: null },
+        interval: 20,
         notifications: { enabled: true, sound: true, priority: 'high' },
         theme: 'dark'
     });
@@ -106,43 +102,40 @@ chrome.alarms.onAlarm.addListener(async alarm => {
         await Achievements.checkUnlocks();
         return;
     }
+    if (alarm.name !== "checkBreaks") return;
+
     const now = Date.now();
-    const { breaksLast, total_activity: stats } = await new Promise(resolve =>
-        chrome.storage.local.get(["breaksLast", "total_activity"], resolve)
+    const { lastBreak, total_activity: stats, interval } = await new Promise(resolve =>
+        chrome.storage.local.get(["lastBreak", "total_activity", "interval"], resolve)
     );
 
-    if (!breaksLast || !stats) return;
+    if (!lastBreak || !stats) return;
 
-    const BREAKS = await getBreakIntervals();
-    const breakRecommendations = [];
+    const intervalMs = (interval || 20) * 60 * 1000; // Default to 20 minutes if no interval set
+    
+    if (now - lastBreak.timestamp < intervalMs) return;
 
-    if (now - breaksLast.eye >= BREAKS.eye.interval) {
-        breakRecommendations.push({ type: "eye", title: "Eye Break" });
-        breaksLast.eye = now;
-    }
+    console.log("Requesting AI break recommendation");
 
-    if (now - breaksLast.stretch >= BREAKS.stretch.interval) {
-        breakRecommendations.push({ type: "stretch", title: "Stretch Break" });
-        breaksLast.stretch = now;
-    }
-
-    if (breakRecommendations.length === 0) return;
-
-    const breakTitle = breakRecommendations.map(b => b.title).join(" & ");
-    console.log("Requesting break recommendation for:", breakTitle);
+    // Update timestamp immediately to prevent multiple notifications
+    await new Promise(resolve => chrome.storage.local.set({ 
+        lastBreak: { timestamp: now, type: lastBreak.type }
+    }, resolve));
 
     const history = await new Promise(resolve =>
         chrome.storage.local.get(['history'], result => resolve(result.history || {}))
     );
+
+    let breakType = 'general';
 
     try {
         const response = await fetch("http://localhost:3001/analyze", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                breakType: breakTitle,
                 activity: stats,
-                history: history
+                history: history,
+                lastBreakType: lastBreak.type
             }),
         });
 
@@ -153,15 +146,17 @@ chrome.alarms.onAlarm.addListener(async alarm => {
         const recommendation = await response.json();
         console.log("Received recommendation:", recommendation);
 
+        breakType = recommendation.breakType || 'general';
+
         const exerciseData = {
-            name: recommendation.title || breakTitle,
+            name: recommendation.title || "Break Time",
             description: recommendation.message,
-            duration: recommendation.duration || 30,
-            steps: recommendation.steps || [
+            duration: recommendation.exercise?.duration || 30,
+            steps: recommendation.exercise?.steps || [
                 "Sit up straight",
-                "Take a deep breath",
-                "Relax your shoulders",
-                "Focus on the exercise"
+                "Look away from your screen",
+                "Take 3 deep breaths",
+                "Gently stretch your neck"
             ],
             icon: recommendation.icon || "💪"
         };
@@ -170,7 +165,7 @@ chrome.alarms.onAlarm.addListener(async alarm => {
 
     } catch (error) {
         console.error("AI analysis failed, sending default notification:", error);
-        const defaultTitle = breakTitle;
+        const defaultTitle = "Break Time";
         const defaultMessage = "Take a moment to rest your eyes and stretch your body.";
         const defaultExercise = {
             name: defaultTitle,
@@ -187,9 +182,10 @@ chrome.alarms.onAlarm.addListener(async alarm => {
         sendNotification(defaultTitle, defaultMessage, defaultExercise);
     }
 
-    // Break count and achievements will be updated only when user completes the exercise
-
-    await new Promise(resolve => chrome.storage.local.set({ breaksLast }, resolve));
+    // Update break type after notification is sent
+    await new Promise(resolve => chrome.storage.local.set({ 
+        lastBreak: { timestamp: now, type: breakType }
+    }, resolve));
 });
 
 
@@ -244,13 +240,3 @@ chrome.notifications.onClicked.addListener((notificationId) => {
 });
 
 
-const getBreakIntervals = async () => {
-    const result = await new Promise(resolve =>
-        chrome.storage.local.get(['intervals'], resolve)
-    );
-    const intervals = result.intervals || { eye: 1, stretch: 60 };
-    return {
-        eye: { interval: intervals.eye * 60 * 1000 },
-        stretch: { interval: intervals.stretch * 60 * 1000 }
-    };
-};

@@ -27,7 +27,7 @@ describe('Settings', () => {
 
   it('should load and display initial settings from storage', async () => {
     const mockSettings = {
-      intervals: { eye: 30, stretch: 75 },
+      interval: 30,
       notifications: { enabled: false, sound: false, priority: 'low' },
       theme: 'light',
     };
@@ -39,7 +39,6 @@ describe('Settings', () => {
 
     // Wait for useEffect to populate the form
     expect(await screen.findByDisplayValue('30')).toBeInTheDocument();
-    expect(await screen.findByDisplayValue('75')).toBeInTheDocument();
     
     const enableNotificationsCheckbox = screen.getByRole('checkbox', { name: /Enable Notifications/i });
     expect(enableNotificationsCheckbox).not.toBeChecked();
@@ -57,11 +56,10 @@ describe('Settings', () => {
     // Wait for component to render with defaults, then find the actual input
     await screen.findByText('Settings'); // Wait for component to load
     
-    // Find the eye break input by role and attributes
-    const eyeInput = screen.getByRole('spinbutton', { name: /eye break/i }) || 
-                     screen.getAllByRole('spinbutton')[0]; // First number input
+    // Find the break interval input
+    const intervalInput = screen.getByRole('spinbutton');
     
-    fireEvent.change(eyeInput, { target: { value: '45' } });
+    fireEvent.change(intervalInput, { target: { value: '45' } });
     
     expect(screen.getByDisplayValue('45')).toBeInTheDocument();
   });
@@ -72,10 +70,10 @@ describe('Settings', () => {
     // Wait for component to load
     await screen.findByText('Settings');
     
-    // Find inputs by role
-    const eyeInput = screen.getAllByRole('spinbutton')[0]; // First number input (eye break)
+    // Find interval input
+    const intervalInput = screen.getByRole('spinbutton');
     
-    fireEvent.change(eyeInput, { target: { value: '25' } });
+    fireEvent.change(intervalInput, { target: { value: '25' } });
     
     const notifCheckbox = screen.getByRole('checkbox', { name: /Enable Notifications/i });
     fireEvent.click(notifCheckbox);
@@ -89,7 +87,7 @@ describe('Settings', () => {
     // Check that a message was sent to the background script
     expect(chrome.runtime.sendMessage).toHaveBeenCalledWith({
       type: 'UPDATE_INTERVALS',
-      data: expect.objectContaining({ eye: 25 }),
+      data: 25,
     });
   });
 
@@ -117,9 +115,9 @@ describe('Settings', () => {
     await screen.findByText('Settings');
     
     // Find and change a value first
-    const eyeInput = screen.getAllByRole('spinbutton')[0]; // First number input
+    const intervalInput = screen.getByRole('spinbutton');
     
-    fireEvent.change(eyeInput, { target: { value: '50' } });
+    fireEvent.change(intervalInput, { target: { value: '50' } });
     expect(screen.getByDisplayValue('50')).toBeInTheDocument();
     
     // Click Reset
@@ -130,7 +128,7 @@ describe('Settings', () => {
 
     // Check that storage was set with default values
     expect(mockStorage.local.set).toHaveBeenCalledWith({
-      intervals: { eye: 20, stretch: 60 },
+      interval: 20,
       notifications: { enabled: true, sound: true, priority: 'high' },
       theme: 'dark',
     });
