@@ -7,16 +7,7 @@ const metrics = {
 };
 
 let lastScrollY = window.scrollY;
-// let isExtensionValid = true;
-
-// // Check if extension context is valid
-// function checkExtensionContext() {
-//   try {
-//     return chrome?.runtime?.id && chrome?.storage;
-//   } catch (error) {
-//     return false;
-//   }
-// }
+let intervalId;
 
 window.addEventListener("click", () => metrics.clicks++, true);
 window.addEventListener("keydown", () => metrics.keystrokes++, true);
@@ -27,15 +18,12 @@ window.addEventListener("scroll", () => {
   lastScrollY = window.scrollY;
 }, { passive: true });
 
-setInterval(async () => {
-  // // Check if extension context is still valid
-  // if (!checkExtensionContext()) {
-  //   if (isExtensionValid) {
-  //     console.log("Extension context invalidated, stopping activity tracking");
-  //     isExtensionValid = false;
-  //   }
-  //   return;
-  // }
+intervalId = setInterval(async () => {
+  // Check if extension is still valid
+  if (!chrome?.runtime?.id) {
+    clearInterval(intervalId);
+    return;
+  }
 
   const metricsToSave = { ...metrics };
   metrics.clicks = 0;
@@ -75,10 +63,10 @@ setInterval(async () => {
     });
   } catch (error) {
     if (error.message?.includes("Extension context invalidated")) {
-      console.log("Extension context invalidated during storage operation");
-      isExtensionValid = false;
-    } else {
-      console.error("Activity tracker error:", error);
+      console.log("Extension context invalidated, clearing interval");
+      clearInterval(intervalId);
+      return;
     }
+    console.error("Activity tracker error:", error);
   }
 }, 5000);
