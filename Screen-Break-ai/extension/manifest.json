@@ -38,7 +38,7 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["tab.html", "popup/dist/*"],
+      "resources": ["popup/dist/*"],
       "matches": ["<all_urls>"]
     }
   ]

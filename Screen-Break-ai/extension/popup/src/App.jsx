@@ -14,8 +14,8 @@ function App() {
 
   // Check for pending exercise on component mount
   useEffect(() => {
-    // Check if running in tab
-    setIsInTab(window.location.pathname.includes('tab.html'));
+    // Check if running in tab (not popup)
+    setIsInTab(window.location.protocol === 'chrome-extension:' && !chrome.extension.getViews({type: 'popup'}).includes(window));
     
     chrome.storage.local.get(['pendingExercise'], (result) => {
       if (result.pendingExercise) {
@@ -81,7 +81,7 @@ function App() {
         </button>
         {!isInTab && (
           <button
-            onClick={() => chrome.tabs.create({ url: chrome.runtime.getURL('tab.html') })}
+            onClick={() => chrome.tabs.create({ url: chrome.runtime.getURL('popup/dist/index.html') })}
             className="px-4 py-2 rounded-lg bg-slate-800 text-slate-400 hover:bg-slate-700"
           >
             🔗 Open in Tab
