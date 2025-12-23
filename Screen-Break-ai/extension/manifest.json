@@ -9,7 +9,8 @@
     "notifications",
     "alarms",
     "idle",
-    "downloads"
+    "downloads",
+    "tabs"
   ],
 
   "content_security_policy": {
@@ -37,7 +38,7 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": [],
+      "resources": ["tab.html", "popup/dist/*"],
       "matches": ["<all_urls>"]
     }
   ]

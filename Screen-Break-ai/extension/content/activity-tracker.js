@@ -51,7 +51,7 @@ intervalId = setInterval(async () => {
           clicks: (activity.clicks || 0) + metricsToSave.clicks,
           keystrokes: (activity.keystrokes || 0) + metricsToSave.keystrokes,
           scrollDistance: (activity.scrollDistance || 0) + metricsToSave.scrollDistance,
-          screenTime: (activity.screenTime || 0) + 5
+          screenTime: activity.screenTime || 0
         }
       }, () => {
         if (chrome.runtime.lastError) {
