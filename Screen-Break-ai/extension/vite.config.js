@@ -7,6 +7,13 @@ export default defineConfig({
   base: './',
   root: './popup',
   build: {
-    outDir: '../dist'
+    outDir: './dist',
+    rollupOptions: {
+      output: {
+        assetFileNames: 'assets/[name].[ext]',
+        chunkFileNames: 'assets/[name].js',
+        entryFileNames: 'assets/[name].js'
+      }
+    }
   }
 })
