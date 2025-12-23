@@ -54,8 +54,9 @@ Screen-Break-ai/
     │   ├── background/
     │   ├── content/
     │   ├── popup/
-    │   ├── utils/
     │   ├── tests/
+    │   ├── utils/
+    │   ├── package.json
     │   └── manifest.json
     └── tests/
 ```
@@ -80,23 +81,17 @@ cd backend
 npm install
 
 # Install popup dependencies
-cd ../extension/popup
+cd extension
 npm install
 ```
 
 ### 2️⃣ Set up Environment
 
-Create `.env` file in `backend/`:
+Create `.env` file in `backend/server/`:
 
 ```env
 GEMINI_API_KEY=your_api_key_here
 PORT=3001
-```
-
-Create `.env` file in `extension/`:
-
-```env
-GEMINI_API_KEY=your_api_key_here
 ```
 
 ### 3️⃣ Run with Docker (Recommended)
@@ -140,10 +135,6 @@ npm test
 
 # Extension tests
 cd Screen-Break-ai/extension
-npm test
-
-# Popup tests
-cd Screen-Break-ai/extension/popup
 npm test
 ```
 
@@ -211,7 +202,7 @@ Generate reports in multiple formats:
 - [x] Activity tracking (clicks, typing, scrolling)
 - [x] Gamification system with achievements
 - [x] Analytics dashboard with charts
-- [x] Export reports (TXT, CSV, JSON)
+- [x] Export reports (TXT)
 - [x] Docker deployment
 - [x] Comprehensive testing suite
 
