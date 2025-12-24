@@ -70,7 +70,7 @@ const EnhancedDashboard = () => {
             { id: 'break_master', name: 'Break Master', icon: '💪' },
             { id: 'week_streak', name: '7-Day Warrior', icon: '🔥' },
             { id: 'eye_guardian', name: 'Eye Guardian', icon: '👁️' },
-            { id: 'posture_master', name: 'Posture Master', icon: '⭐' },
+            { id: 'break_master', name: 'Break Master', icon: '⭐' },
             { id: 'wellness_warrior', name: 'Wellness Warrior', icon: '🏆' },
             { id: 'zen_master', name: 'Zen Master', icon: '🧘' },
             { id: 'productivity_pro', name: 'Productivity Pro', icon: '🚀' }
@@ -158,7 +158,7 @@ const EnhancedDashboard = () => {
   return (
     <div className="w-full p-4 min-h-screen overflow-y-auto" style={{ background: 'linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%)' }}>
       <div className="mb-4 text-center">
-        <h1 className="text-2xl font-bold mb-1" style={{ color: 'var(--text-primary)' }}>💪 Posture Guardian AI</h1>
+        <h1 className="text-2xl font-bold mb-1" style={{ color: 'var(--text-primary)' }}>💪 Screen Break AI</h1>
         <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Your intelligent wellness companion</p>
       </div>
 

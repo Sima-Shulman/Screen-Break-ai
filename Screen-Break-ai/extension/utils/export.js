@@ -45,7 +45,7 @@ export const ExportManager = {
       
       const report = `
 ═══════════════════════════════════════════════════
-          POSTURE GUARDIAN - WEEKLY REPORT
+          Screen Break- WEEKLY REPORT
 ═══════════════════════════════════════════════════
 
 📊 SUMMARY
@@ -188,7 +188,7 @@ Generated on: ${new Date().toLocaleString()}
     const { streak, stats } = data;
     
     const message = `
-🏆 My Posture Guardian Stats:
+🏆 My Screaan Break Stats:
 - ${streak} day streak 🔥
 - Health Score: ${stats.health_score}%
 - ${stats.total_breaks} breaks taken

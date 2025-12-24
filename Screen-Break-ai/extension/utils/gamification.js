@@ -32,7 +32,7 @@ export const Achievements = {
     },
     {
       id: 'posture_master',
-      name: 'Posture Master',
+      name: 'Break Master',
       icon: '⭐',
       description: 'Achieve health score of 90+',
       condition: (stats) => stats.health_score >= 90 && stats.total_breaks >= 20 && stats.streak >= 7
