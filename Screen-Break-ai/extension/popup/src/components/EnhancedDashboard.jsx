@@ -132,7 +132,7 @@ const EnhancedDashboard = () => {
   const activityData = [
     { name: 'Clicks', value: stats.clicks, color: '#3b82f6' },
     { name: 'Keystrokes', value: stats.keystrokes, color: '#10b981' },
-    { name: 'Scroll (m)', value: Math.round(stats.scrollDistance / 1000), color: '#8b5cf6' }
+    { name: 'Scroll (m)', value: Math.round(stats.scrollDistance / 3779), color: '#8b5cf6' }
   ];
 
   const formatScrollMeters = (pixels) => {
